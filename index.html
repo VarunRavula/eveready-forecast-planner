@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast Planning — Prototype</title>
+<style>
+  :root {
+    --paper: #FFFFFF;
+    --paper-tint: #F3F7FC;
+    --paper-raised: #FFFFFF;
+    --paper-sunken: #EDF2FA;
+    --ink: #111827;
+    --ink-muted: #4B5563;
+    --ink-faint: #94A3B8;
+    --hairline: #E5E9F0;
+    --hairline-strong: #D6DDE8;
+    --accent: #2F54EB;
+    --accent-strong: #2444C0;
+    --accent-soft: rgba(47, 84, 235, 0.08);
+    --accent-soft-strong: rgba(47, 84, 235, 0.14);
+    --warn: #B45309;
+    --warn-soft: rgba(217, 119, 6, 0.12);
+    --danger: #B42318;
+    --danger-soft: rgba(180, 35, 24, 0.10);
+    --success: #15803D;
+    --success-soft: rgba(22, 163, 74, 0.10);
+    --focus-ring: #2F54EB;
+    --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
+    --font: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+  button { font-family: var(--font); }
+  button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+  /* ---------- Top nav ---------- */
+  header.topnav {
+    position: sticky; top: 0; z-index: 20; background: var(--paper);
+    border-bottom: 1px solid var(--hairline-strong);
+  }
+  .topnav-inner { max-width: 1240px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; gap: 28px; height: 62px; }
+  .brand { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+  .brand .mark-img { height: 22px; width: auto; display: block; }
+  .brand .ctx { font-size: 13px; color: var(--ink-faint); padding-left: 12px; border-left: 1px solid var(--hairline-strong); }
+  .tabs { display: flex; gap: 4px; margin-left: auto; }
+  .tab-btn {
+    border: none; background: transparent; padding: 10px 16px; font-size: 14px; font-weight: 700;
+    color: var(--ink-muted); border-radius: 8px; cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--ink); background: var(--paper-tint); }
+  .tab-btn.active { color: var(--accent); background: var(--accent-soft); }
+
+  .shell { max-width: 1240px; margin: 0 auto; padding: 28px 28px 80px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  h1.page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
+  p.page-sub { font-size: 14px; color: var(--ink-muted); margin: 0 0 22px; }
+
+  /* ---------- Filter bar ---------- */
+  .filterbar { display: flex; align-items: flex-end; gap: 18px; margin-bottom: 20px; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); }
+  select.ctl {
+    appearance: none; -webkit-appearance: none; font-family: var(--font); font-size: 14px; font-weight: 600; color: var(--ink);
+    background: var(--paper-raised) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="%234B5563" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 12px center;
+    border: 1px solid var(--hairline-strong); border-radius: 10px; padding: 9px 34px 9px 12px; min-width: 190px; cursor: pointer;
+  }
+  select.ctl:hover { border-color: var(--accent); }
+
+  /* ---------- Summary banner ---------- */
+  .summary-banner { margin-bottom: 22px; }
+  .banner-awaited {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    border: 1px dashed var(--hairline-strong); border-radius: 14px; padding: 18px 22px; background: var(--paper-sunken);
+  }
+  .banner-awaited .msg { font-size: 14.5px; font-weight: 600; color: var(--ink-muted); }
+  .banner-awaited .msg b { color: var(--ink); }
+  .csv-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font); font-size: 13.5px; font-weight: 700; letter-spacing: 0.01em; padding: 9px 16px;
+    border-radius: 999px; cursor: pointer; border: 1px solid var(--hairline-strong); background: var(--paper-raised); color: var(--ink);
+    display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+  .btn.small { padding: 7px 13px; font-size: 12.5px; }
+  .btn.ghost { background: transparent; }
+  input[type="file"] { display: none; }
+
+  .summary-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .summary-split { grid-template-columns: 1fr; } }
+  .summary-card {
+    border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--paper-raised);
+    box-shadow: var(--shadow-card); padding: 18px 20px;
+  }
+  .summary-card .sc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .summary-card .sc-label { font-size: 12.5px; font-weight: 700; color: var(--ink-muted); }
+  .summary-card.lower .sc-label { color: var(--danger); }
+  .summary-card.higher .sc-label { color: var(--warn); }
+  .summary-card .sc-count { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; margin-top: 6px; }
+  .summary-card .sc-count span { font-size: 14px; font-weight: 600; color: var(--ink-faint); margin-left: 6px; }
+  .summary-card .sc-dev { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .status-row { display: flex; gap: 18px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+  .status-row .st { display: flex; flex-direction: column; gap: 2px; }
+  .status-row .st .n { font-size: 17px; font-weight: 800; }
+  .status-row .st.approved .n { color: var(--success); }
+  .status-row .st.rejected .n { color: var(--danger); }
+  .status-row .st.awaiting .n { color: var(--warn); }
+  .status-row .st .l { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+  .csv-hint { margin-top: 10px; font-size: 12px; color: var(--ink-faint); }
+
+  /* ---------- Forecast Accuracy tab ---------- */
+  .cycle-tag { display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 700; color: var(--ink-muted); background: var(--paper-tint); border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 5px 12px; margin-bottom: 20px; }
+  .summary-triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .summary-triple { grid-template-columns: 1fr; } }
+  .summary-card.er .sc-label { color: var(--accent); }
+  .summary-card.zonal .sc-label { color: var(--ink-muted); }
+  .summary-card.approved .sc-label { color: var(--success); }
+  .benefit-note { border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--success-soft); padding: 16px 20px; margin: 20px 0 26px; font-size: 14px; color: var(--ink); line-height: 1.5; }
+  .benefit-note b { color: var(--success); }
+  .acc-pill { display: inline-block; margin-top: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .acc-pill.good { background: var(--success-soft); color: var(--success); }
+  .acc-pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .acc-pill.bad { background: var(--danger-soft); color: var(--danger); }
+
+  .summary-quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 1100px) { .summary-quad { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .summary-quad { grid-template-columns: 1fr; } }
+
+  /* ---------- Grid ---------- */
+  .proto-frame { border: 1px solid var(--hairline-strong); border-radius: 16px; overflow: hidden; background: var(--paper-raised); box-shadow: var(--shadow-card); }
+  .grid-cols { --gg: minmax(180px,1.3fr) minmax(110px,0.9fr) minmax(150px,1.15fr) minmax(120px,0.95fr) minmax(100px,0.85fr) minmax(190px,1.15fr); }
+  .grid-head {
+    display: grid; grid-template-columns: var(--gg); column-gap: 20px; padding: 10px 22px;
+    border-bottom: 1px solid var(--hairline-strong); background: var(--paper-tint);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 700;
+  }
+  .grid-list { display: flex; flex-direction: column; gap: 1px; background: var(--hairline); }
+  .grid-row { background: var(--paper-raised); padding: 14px 22px; display: grid; grid-template-columns: var(--gg); column-gap: 20px; align-items: center; }
+  .sku-name { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .sku-code { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+  .fc-cell .fc-total { font-weight: 700; font-size: 14.5px; }
+  .fc-cell.zonal .fc-total.pending { color: var(--ink-faint); font-weight: 600; }
+  .dev-inline { font-weight: 700; font-size: 14.5px; }
+  .dev-inline.lo { color: var(--danger); }
+  .dev-inline.hi { color: var(--warn); }
+  .dev-inline.ok { color: var(--ink-faint); }
+  .final-input {
+    font-family: var(--font); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; color: var(--ink);
+    border: 1px solid var(--hairline-strong); border-radius: 8px; padding: 6px 9px; width: 108px; background: var(--paper-raised);
+  }
+  .final-input:hover { border-color: var(--accent); }
+  .final-input:disabled { color: var(--ink-faint); background: var(--paper-sunken); border-color: var(--hairline); cursor: not-allowed; }
+  .reason-tag {
+    position: relative; display: inline-block; font-size: 11.5px; font-weight: 700; padding: 4px 10px;
+    background: var(--paper-sunken); color: var(--ink-muted); border: 1px solid var(--hairline-strong); border-radius: 999px; cursor: help;
+  }
+  .reason-tag:hover, .reason-tag:focus-visible { border-color: var(--accent); color: var(--accent); }
+  .reason-tag::after {
+    content: attr(data-tip); position: absolute; left: 0; bottom: 100%; transform: translateY(-8px);
+    width: max-content; max-width: 230px; background: var(--ink); color: var(--paper); font-weight: 400; font-size: 12px;
+    line-height: 1.4; padding: 8px 10px; border-radius: 6px; opacity: 0; pointer-events: none; text-align: left; z-index: 5;
+  }
+  .reason-tag:hover::after, .reason-tag:focus-visible::after { opacity: 1; }
+  .reason-none { color: var(--ink-faint); font-size: 12.5px; }
+  .status-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; font-weight: 700; font-size: 12px; padding: 4px 11px; white-space: nowrap; }
+  .status-badge.needs { background: var(--warn-soft); color: var(--warn); }
+  .status-badge.approved { background: var(--success-soft); color: var(--success); }
+  .status-badge.rejected { background: var(--danger-soft); color: var(--danger); }
+  .status-badge.inline { background: var(--paper-sunken); color: var(--ink-faint); }
+  .rc-actions { display: flex; gap: 8px; margin-top: 9px; flex-wrap: wrap; }
+  .rc-actions button {
+    font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--hairline-strong);
+    background: transparent; color: var(--ink); cursor: pointer;
+  }
+  .rc-actions button:hover { border-color: var(--accent); color: var(--accent); }
+  .rc-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .rc-actions button.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .rc-actions button.danger:hover { border-color: var(--danger); color: var(--danger); }
+  .change-link { display: none; font-size: 11.5px; color: var(--ink-muted); background: none; border: none; padding: 6px 0 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .change-link:hover { color: var(--accent); }
+  .proto-note { padding: 12px 22px; border-top: 1px solid var(--hairline); font-size: 12px; color: var(--ink-faint); font-style: italic; }
+  @media (max-width: 900px) {
+    .grid-head { display: none; }
+    .grid-row { grid-template-columns: 1fr; row-gap: 10px; }
+  }
+
+  /* ---------- Summary tab ---------- */
+  .biz-toggle { display: inline-flex; border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 3px; gap: 2px; margin-bottom: 22px; }
+  .biz-toggle button { border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .biz-toggle button.active { background: var(--accent); color: #fff; }
+  .overall-wrap { margin-bottom: 30px; }
+  .overall-wrap .summary-split { margin-top: 14px; }
+
+  .zone-list { border: 1px solid var(--hairline-strong); border-radius: 16px; overflow: hidden; background: var(--paper-raised); box-shadow: var(--shadow-card); }
+  .zone-row { border-bottom: 1px solid var(--hairline); }
+  .zone-row:last-child { border-bottom: none; }
+  .zone-row-head {
+    display: flex; align-items: center; gap: 18px; padding: 14px 22px; cursor: pointer; background: var(--paper-raised);
+  }
+  .zone-row-head:hover { background: var(--paper-tint); }
+  .zone-row-head .zn { font-weight: 700; font-size: 14.5px; min-width: 90px; }
+  .zone-row-head .zstat { font-size: 13px; color: var(--ink-muted); }
+  .zone-row-head .zstat b { color: var(--ink); }
+  .zone-row-head .chev { margin-left: auto; color: var(--ink-faint); font-size: 12px; transition: transform 0.15s ease; }
+  .zone-row.open .chev { transform: rotate(90deg); }
+  .zone-row-body { display: none; padding: 4px 22px 20px; background: var(--paper-tint); }
+  .zone-row.open .zone-row-body { display: block; }
+  .live-tag { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; margin-left: 8px; }
+
+  /* ---------- System Forecast tab ---------- */
+  .metrics-panel { border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--paper-tint); padding: 18px 22px; margin-bottom: 22px; }
+  .metrics-panel .mp-title { font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+  .metrics-panel ol { margin: 0; padding: 0 0 0 18px; }
+  .metrics-panel li { font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+  .metrics-panel li:first-child { margin-top: 0; }
+  .metrics-panel li b { color: var(--ink); }
+
+  .sf-list { display: flex; flex-direction: column; gap: 1px; background: var(--hairline); }
+  .sf-card { background: var(--paper-raised); padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .sf-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sf-tags { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+
+  .cls-tag { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+  .cls-tag.new { background: var(--accent-soft); color: var(--accent); }
+  .cls-tag.best { background: var(--success-soft); color: var(--success); }
+  .cls-tag.slow { background: var(--paper-sunken); color: var(--ink-muted); }
+  .cls-tag.non { background: var(--danger-soft); color: var(--danger); }
+
+  .sf-stats { display: flex; align-items: stretch; gap: 16px; flex-wrap: wrap; }
+  .sf-stat { display: flex; flex-direction: column; gap: 3px; justify-content: center; min-width: 90px; }
+  .sf-stat .sl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
+  .sf-stat .sv { font-size: 14.5px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .sf-stat .sv.muted { color: var(--ink-faint); font-weight: 600; }
+  .sf-stat.season .sv.pos { color: var(--success); }
+  .sf-stat.season .sv.neg { color: var(--danger); }
+  .sf-stat.final { background: var(--accent-soft); border-radius: 10px; padding: 8px 12px; margin-left: auto; }
+  .sf-stat.final .sl { color: var(--accent); }
+  .sf-stat.final .sv { color: var(--accent-strong); font-size: 15.5px; }
+
+  .sf-recent { flex: 0 0 auto; border: 1px solid var(--hairline-strong); border-radius: 10px; padding: 10px 14px; background: var(--paper-sunken); display: flex; flex-direction: column; gap: 8px; }
+  .sf-recent-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .sf-recent-head .sl { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; }
+  .sf-recent-cols { display: flex; gap: 18px; }
+  .sf-recent-cols .sf-stat { min-width: 76px; }
+
+  .trend-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .trend-tag.up { background: var(--success-soft); color: var(--success); }
+  .trend-tag.down { background: var(--danger-soft); color: var(--danger); }
+  .trend-tag.flat { background: var(--paper-sunken); color: var(--ink-faint); }
+  .trend-tag.none { background: var(--paper-sunken); color: var(--ink-faint); }
+
+  @media (max-width: 760px) { .sf-stats { flex-direction: column; } .sf-recent { order: -1; } }
+
+  footer.appfoot { border-top: 1px solid var(--hairline); padding: 26px 28px; text-align: center; margin-top: 40px; }
+  footer.appfoot p { max-width: 1240px; margin: 0 auto; font-size: 12px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <div class="brand"><img class="mark-img" alt="EasyReplenish" src="data:image/png;base64,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"><span class="ctx">Forecast Planning — Eveready</span></div>
+    <nav class="tabs">
+      <button type="button" class="tab-btn active" data-view="planning">Planning</button>
+      <button type="button" class="tab-btn" data-view="summary">Summary</button>
+      <button type="button" class="tab-btn" data-view="sysforecast">System Forecast</button>
+      <button type="button" class="tab-btn" data-view="accuracy">Forecast Accuracy</button>
+      <button type="button" class="tab-btn" data-view="business">Business Summary</button>
+    </nav>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- PLANNING VIEW -->
+  <section id="view-planning" class="view active">
+    <h1 class="page-title">Planning</h1>
+    <p class="page-sub">Compare your zonal forecast against EasyReplenish's independent check, SKU by SKU.</p>
+
+    <div class="summary-banner" id="summaryBanner"></div>
+
+    <div class="filterbar">
+      <div class="field">
+        <label for="zoneSelect">Zone</label>
+        <select class="ctl" id="zoneSelect"></select>
+      </div>
+      <div class="field">
+        <label for="bizSelect">Business</label>
+        <select class="ctl" id="bizSelect">
+          <option value="All">All</option>
+          <option value="Batteries">Batteries</option>
+          <option value="Lighting">Lighting</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="proto-frame">
+      <div class="grid-head grid-cols">
+        <span>SKU</span><span>EasyReplenish forecast</span><span>Zonal forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
+      </div>
+      <div class="grid-list grid-cols" id="gridList"></div>
+      <div class="proto-note">3-month total shown per SKU. Sample data for this walkthrough — not Eveready's actual figures.</div>
+    </div>
+  </section>
+
+  <!-- SUMMARY VIEW -->
+  <section id="view-summary" class="view">
+    <h1 class="page-title">Summary</h1>
+    <p class="page-sub">Deviation between zonal and EasyReplenish forecasts, rolled up across all 36 zones.</p>
+
+    <div class="biz-toggle" id="summaryBizToggle">
+      <button type="button" class="active" data-biz="All">All</button>
+      <button type="button" data-biz="Batteries">Batteries</button>
+      <button type="button" data-biz="Lighting">Lighting</button>
+      <button type="button" data-biz="Others">Others</button>
+    </div>
+
+    <div class="overall-wrap">
+      <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
+      <div class="summary-split" id="overallSummary"></div>
+    </div>
+
+    <div class="zone-list" id="zoneList"></div>
+  </section>
+
+  <!-- SYSTEM FORECAST VIEW -->
+  <section id="view-sysforecast" class="view">
+    <h1 class="page-title">System Forecast</h1>
+    <p class="page-sub">How EasyReplenish's 3-month forecast for each SKU is built, from recent sell-through through to seasonality.</p>
+
+    <div class="filterbar">
+      <div class="field">
+        <label for="zoneSelect2">Zone</label>
+        <select class="ctl" id="zoneSelect2"></select>
+      </div>
+      <div class="field">
+        <label for="bizSelect2">Business</label>
+        <select class="ctl" id="bizSelect2">
+          <option value="All">All</option>
+          <option value="Batteries">Batteries</option>
+          <option value="Lighting">Lighting</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="metrics-panel">
+      <div class="mp-title">Metrics used to build this forecast</div>
+      <ol>
+        <li><b>Last 90 days of sell-through</b>, read as three rolling 30-day windows</li>
+        <li><b>Trend</b> — latest 30-day run-rate vs. the two 30-day windows before it</li>
+        <li><b>Seasonality &amp; festival calendar</b> — expected uplift or dip for this forecast window</li>
+        <li><b>Product lifecycle stage</b> — new launch, best seller, slow mover, or non-mover</li>
+        <li>For new launches: <b>comparable-SKU launch curve</b>, normalized to this zone</li>
+      </ol>
+    </div>
+
+    <div class="proto-frame">
+      <div class="sf-list" id="sfList"></div>
+      <div class="proto-note">3-month total = latest 30-day run-rate × 3, adjusted for seasonality (new launches use a comparable-SKU curve instead). Sample data for this walkthrough — not Eveready's actual figures.</div>
+    </div>
+  </section>
+
+  <!-- FORECAST ACCURACY VIEW -->
+  <section id="view-accuracy" class="view">
+    <h1 class="page-title">Forecast Accuracy</h1>
+    <p class="page-sub">How the last closed cycle's forecasts held up against actual sales.</p>
+    <div class="cycle-tag">Cycle: May – Jul 2026 (closed)</div>
+
+    <div class="biz-toggle" id="accuracyBizToggle">
+      <button type="button" class="active" data-biz="All">All</button>
+      <button type="button" data-biz="Batteries">Batteries</button>
+      <button type="button" data-biz="Lighting">Lighting</button>
+      <button type="button" data-biz="Others">Others</button>
+    </div>
+
+    <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
+    <div class="summary-triple" id="accuracyScorecard" style="margin-top:14px;"></div>
+    <div class="benefit-note" id="accuracyBenefit"></div>
+
+    <div class="field" style="margin-bottom:10px;"><label>Zone by zone</label></div>
+    <div class="zone-list" id="accuracyZoneList"></div>
+    <p class="proto-note" style="border-top:none; padding-left:0;">Expand a zone to see its SKU-level breakdown. Accuracy = 100% − |Forecast − Actual| / Actual. Sample data for this walkthrough — not Eveready's actual figures.</p>
+  </section>
+
+  <!-- BUSINESS SUMMARY VIEW -->
+  <section id="view-business" class="view">
+    <h1 class="page-title">Business Summary</h1>
+    <p class="page-sub">Where inventory sits today — overall, then zone by zone, then SKU by SKU.</p>
+    <div class="cycle-tag">Target: 45 days of cover — inventory held beyond that counts as excess</div>
+
+    <div class="biz-toggle" id="businessBizToggle">
+      <button type="button" class="active" data-biz="All">All</button>
+      <button type="button" data-biz="Batteries">Batteries</button>
+      <button type="button" data-biz="Lighting">Lighting</button>
+      <button type="button" data-biz="Others">Others</button>
+    </div>
+
+    <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
+    <div class="summary-quad" id="businessScorecard" style="margin-top:14px; margin-bottom:26px;"></div>
+
+    <div class="field" style="margin-bottom:10px;"><label>Zone by zone</label></div>
+    <div class="zone-list" id="businessZoneList"></div>
+    <p class="proto-note" style="border-top:none; padding-left:0;">Expand a zone to see its SKU-level breakdown. Sample data for this walkthrough — not Eveready's actual figures.</p>
+  </section>
+
+</div>
+
+<footer class="appfoot"><p>Forecast Planning prototype — Eveready Industries × EasyReplenish</p></footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- deterministic PRNG ---------------- */
+  function seedFromString(s) {
+    var h = 1779033703;
+    for (var i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function rand(key) { return mulberry32(seedFromString(key))(); }
+
+  /* ---------------- SKU catalog ---------------- */
+  var SKUS = [
+    { code: "BAT-01", name: "AA Alkaline (4-pack)", biz: "Batteries", base: 42000, cls: "best", season: 0.08, seasonLabel: "Festive gifting & torch demand" },
+    { code: "BAT-02", name: "AAA Alkaline (4-pack)", biz: "Batteries", base: 31000, cls: "best", season: 0.06, seasonLabel: "Festive gifting & torch demand" },
+    { code: "BAT-03", name: "9V Battery", biz: "Batteries", base: 6200, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick", flag: { dir: "hi", reason: "Zone bias", tip: "Zone historically over-forecasts this SKU — bias adjustment applied.", mag: [0.40, 0.60] } },
+    { code: "BAT-04", name: "AA Carbon Zinc (2-pack)", biz: "Batteries", base: 18000, cls: "slow", season: 0.04, seasonLabel: "Minor festive uptick" },
+    { code: "BAT-05", name: "AAA Carbon Zinc (2-pack)", biz: "Batteries", base: 15500, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick" },
+    { code: "BAT-06", name: "C-Cell Battery", biz: "Batteries", base: 4100, cls: "non", season: 0.02, seasonLabel: "Declining format, largely flat" },
+    { code: "BAT-07", name: "D-Cell Battery", biz: "Batteries", base: 5300, cls: "slow", season: 0.05, seasonLabel: "Festive travel & power-cut demand", flag: { dir: "hi", reason: "Distributor returns", tip: "High distributor returns last cycle not yet reflected in the zonal number.", mag: [0.30, 0.50] } },
+    { code: "BAT-08", name: "Rechargeable AA (2-pack)", biz: "Batteries", base: 3800, cls: "slow", season: 0.02, seasonLabel: "No strong seasonal pull" },
+    { code: "LGT-01", name: "LED Bulb 9W", biz: "Lighting", base: 5200, cls: "best", season: 0.25, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-02", name: "LED Bulb 12W", biz: "Lighting", base: 3100, cls: "slow", season: 0.22, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-03", name: "LED Tube Light 20W", biz: "Lighting", base: 2600, cls: "slow", season: 0.12, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-04", name: "LED Batten 36W", biz: "Lighting", base: 1800, cls: "slow", season: 0.10, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-05", name: "Torch — Rechargeable", biz: "Lighting", base: 2400, cls: "slow", season: 0.15, seasonLabel: "Festive travel & power backup" },
+    { code: "LGT-06", name: "Torch — Standard", biz: "Lighting", base: 3600, cls: "best", season: 0.12, seasonLabel: "Festive travel & power backup" },
+    { code: "LGT-07", name: "Emergency Lantern", biz: "Lighting", base: 1100, cls: "slow", season: 0.10, seasonLabel: "Festive travel & power backup" },
+    { code: "LGT-08", name: "Decorative String Lights", biz: "Lighting", base: 2200, cls: "slow", season: 0.45, seasonLabel: "Diwali falls earlier this year", flag: { dir: "lo", reason: "Festive shift", tip: "Diwali falls earlier this year — zonal forecast doesn't reflect it yet.", mag: [0.25, 0.35] } },
+    { code: "LGT-09", name: "LED Bulb 9W — Festive Pack", biz: "Lighting", base: 900, cls: "new", season: 0.60, seasonLabel: "Diwali-timed launch", comparable: "LED Bulb 9W (prior year festive pack)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.50, 2.50] } },
+    { code: "LGT-10", name: "Smart LED Bulb (WiFi)", biz: "Lighting", base: 450, cls: "new", season: 0.05, seasonLabel: "No strong seasonal pull", comparable: "LED Bulb 12W (closest price tier)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.00, 1.80] } },
+    { code: "LGT-11", name: "Ceiling Fan Light Kit", biz: "Lighting", base: 1400, cls: "non", season: 0.00, seasonLabel: "No seasonal pull" },
+    { code: "LGT-12", name: "Solar Garden Light", biz: "Lighting", base: 700, cls: "new", season: 0.18, seasonLabel: "Outdoor festive decor", comparable: "Decorative String Lights (launch-year curve)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.20, 2.00] } },
+    { code: "OTH-01", name: "Wire & Cable — 1.5mm", biz: "Others", base: 3200, cls: "best", season: 0.00, seasonLabel: "No seasonal pull" },
+    { code: "OTH-02", name: "Extension Board (4-socket)", biz: "Others", base: 2100, cls: "slow", season: 0.05, seasonLabel: "Festive lighting installs", flag: { dir: "lo", reason: "Zone bias", tip: "Zone historically under-forecasts this SKU — bias correction applied.", mag: [0.20, 0.30] } },
+    { code: "OTH-03", name: "Electric Iron", biz: "Others", base: 1600, cls: "slow", season: -0.05, seasonLabel: "Post-monsoon lull" },
+    { code: "OTH-04", name: "Immersion Rod", biz: "Others", base: 1300, cls: "slow", season: 0.22, seasonLabel: "Winter onset" }
+  ];
+  var CLS_LABEL = { new: "New launch", best: "Best seller", slow: "Slow mover", non: "Non-mover" };
+
+  function zoneFactor(zone) { return 0.7 + rand("zf|" + zone) * 0.8; }
+
+  function splitMonths(total, seedKey) {
+    var w1 = 0.28 + rand(seedKey + "|m1") * 0.14;
+    var w2 = 0.30 + rand(seedKey + "|m2") * 0.14;
+    var w3 = Math.max(0.05, 1 - w1 - w2);
+    var m1 = Math.round(total * w1), m2 = Math.round(total * w2), m3 = total - m1 - m2;
+    return [m1, m2, m3];
+  }
+
+  function buildRow(zone, sku) {
+    var zf = zoneFactor(zone);
+    var row = { code: sku.code, name: sku.name, biz: sku.biz, cls: sku.cls, season: sku.season, seasonLabel: sku.seasonLabel, comparable: sku.comparable || null };
+
+    if (sku.cls === "new") {
+      var launchJitter = 0.85 + rand("er|" + zone + "|" + sku.code) * 0.30;
+      row.baseline = Math.max(60, Math.round(sku.base * zf * launchJitter));
+      row.l30 = null; row.p30 = null; row.pp30 = null; row.trendPct = null; row.trendTag = "No history";
+    } else {
+      var runJitter = 0.90 + rand("er|" + zone + "|" + sku.code) * 0.20;
+      var l30 = Math.max(15, Math.round((sku.base / 3) * zf * runJitter));
+      var trendPct = -0.18 + rand("trend|" + zone + "|" + sku.code) * 0.36;
+      var p30 = Math.max(10, Math.round(l30 / (1 + trendPct)));
+      var pp30 = Math.max(10, Math.round(p30 / (1 + trendPct)));
+      row.l30 = l30; row.p30 = p30; row.pp30 = pp30; row.trendPct = trendPct;
+      row.trendTag = trendPct > 0.03 ? "Increasing" : trendPct < -0.03 ? "Decreasing" : "Constant";
+      row.baseline = l30 * 3;
+    }
+
+    var er = Math.max(50, Math.round(row.baseline * (1 + sku.season)));
+    row.er = er;
+    row.erMonths = splitMonths(er, "erm|" + zone + "|" + sku.code);
+
+    var zonal;
+    var flagActive = sku.flag && rand("active|" + zone + "|" + sku.code) < 0.62;
+    if (flagActive) {
+      var mag = sku.flag.mag[0] + rand("mag|" + zone + "|" + sku.code) * (sku.flag.mag[1] - sku.flag.mag[0]);
+      zonal = sku.flag.dir === "hi" ? Math.round(er * (1 + mag)) : Math.round(er * (1 - mag));
+    } else {
+      var noise = -0.09 + rand("noise|" + zone + "|" + sku.code) * 0.18;
+      zonal = Math.round(er * (1 + noise));
+    }
+    zonal = Math.max(20, zonal);
+    var devPct = Math.round(((zonal - er) / er) * 100);
+    var flagged = Math.abs(devPct) >= 15;
+
+    row.zonal = zonal;
+    row.zonalMonths = splitMonths(zonal, "zm|" + zone + "|" + sku.code);
+    row.devPct = devPct; row.flagged = flagged;
+    row.reason = sku.flag ? sku.flag.reason : null; row.tip = sku.flag ? sku.flag.tip : null;
+    return row;
+  }
+
+  function zoneRows(zone) { return SKUS.map(function (s) { return buildRow(zone, s); }); }
+
+  /* ---------------- Historical cycle (Forecast Accuracy tab) ---------------- */
+  function buildHistRow(zone, sku) {
+    var zf = 0.7 + rand("hist-zf|" + zone) * 0.8;
+    var runJitter = 0.90 + rand("hist-er|" + zone + "|" + sku.code) * 0.20;
+    var baseline;
+    if (sku.cls === "new") {
+      baseline = Math.max(60, Math.round(sku.base * zf * (0.85 + rand("hist-launch|" + zone + "|" + sku.code) * 0.30)));
+    } else {
+      var l30 = Math.max(15, Math.round((sku.base / 3) * zf * runJitter));
+      baseline = l30 * 3;
+    }
+    var er = Math.max(50, Math.round(baseline * (1 + sku.season)));
+
+    var zonal;
+    var flagActive = sku.flag && rand("hist-active|" + zone + "|" + sku.code) < 0.95;
+    if (flagActive) {
+      var mag = (sku.flag.mag[0] + rand("hist-mag|" + zone + "|" + sku.code) * (sku.flag.mag[1] - sku.flag.mag[0])) * 2.6;
+      zonal = sku.flag.dir === "hi" ? Math.round(er * (1 + mag)) : Math.round(er * (1 - mag));
+    } else {
+      var noise = -0.13 + rand("hist-noise|" + zone + "|" + sku.code) * 0.26;
+      zonal = Math.round(er * (1 + noise));
+    }
+    zonal = Math.max(20, zonal);
+    var flagged = Math.abs(Math.round(((zonal - er) / er) * 100)) >= 15;
+
+    var actual;
+    if (flagged) {
+      var erWins = rand("hist-winner|" + zone + "|" + sku.code) < 0.82;
+      var an = -0.20 + rand("hist-an|" + zone + "|" + sku.code) * 0.40;
+      actual = erWins ? Math.round(er * (1 + an)) : Math.round(zonal * (1 + an));
+    } else {
+      var an2 = -0.28 + rand("hist-an2|" + zone + "|" + sku.code) * 0.56;
+      actual = Math.round(er * (1 + an2));
+    }
+    actual = Math.max(20, actual);
+
+    var approved;
+    if (flagged) {
+      var decision = rand("hist-decision|" + zone + "|" + sku.code) < 0.65 ? "approved" : "rejected";
+      approved = decision === "approved" ? er : zonal;
+    } else {
+      approved = zonal;
+    }
+
+    return {
+      code: sku.code, name: sku.name, biz: sku.biz, cls: sku.cls, flagged: flagged,
+      reason: sku.flag ? sku.flag.reason : null, tip: sku.flag ? sku.flag.tip : null,
+      er: er, zonal: zonal, approved: approved, actual: actual
+    };
+  }
+
+  function histRows(zone) { return SKUS.map(function (s) { return buildHistRow(zone, s); }); }
+
+  function accuracyOf(forecast, actual) {
+    return actual > 0 ? Math.max(0, Math.round(100 - (Math.abs(forecast - actual) / actual) * 100)) : 0;
+  }
+  function weightedAccuracy(rows, key) {
+    if (!rows.length) return 0;
+    var sum = 0;
+    rows.forEach(function (r) { sum += accuracyOf(r[key], r.actual); });
+    return Math.round(sum / rows.length);
+  }
+  function excessUnits(rows, key) {
+    return rows.reduce(function (a, r) { return a + Math.max(0, r[key] - r.actual); }, 0);
+  }
+  function accPillCls(a) { return a >= 90 ? "good" : a >= 75 ? "warn" : "bad"; }
+
+  /* ---------------- Business Summary (current inventory) ---------------- */
+  var TARGET_DOI = 45;
+  var INV_MULT_RANGE = { best: [0.85, 1.6], slow: [1.3, 2.8], non: [1.8, 3.5], new: [0.6, 1.8] };
+
+  function buildInventoryRow(zone, r) {
+    var recentSales = r.l30 !== null ? r.l30 : Math.round(r.baseline / 3);
+    var dailyRate = recentSales / 30;
+    var targetInv = dailyRate * TARGET_DOI;
+    var range = INV_MULT_RANGE[r.cls];
+    var invMult = range[0] + rand("inv-mult|" + zone + "|" + r.code) * (range[1] - range[0]);
+    var currentInv = Math.max(0, Math.round(targetInv * invMult));
+    var doi = dailyRate > 0 ? Math.round(currentInv / dailyRate) : 0;
+    var excess = Math.max(0, Math.round(currentInv - targetInv));
+    return { code: r.code, name: r.name, biz: r.biz, cls: r.cls, recentSales: recentSales, currentInv: currentInv, doi: doi, excess: excess };
+  }
+
+  function inventoryRows(zone) { return zoneRows(zone).map(function (r) { return buildInventoryRow(zone, r); }); }
+
+  function doiLabel(doi) { return doi < 30 ? "Low" : doi <= 70 ? "Healthy" : "Excess"; }
+  function doiPillCls(doi) { return doi < 30 ? "warn" : doi <= 70 ? "good" : "bad"; }
+
+  /* ---------------- app state ---------------- */
+  var ZONES = 36;
+  var state = {
+    zone: 1,
+    biz: "All",
+    uploaded: {},   // key "zone" -> true once a CSV has been uploaded for that zone
+    decisions: {},  // key "zone|code" -> "approved" | "rejected"
+    finalOverride: {} // key "zone|code" -> manually edited final forecast number
+  };
+  var summaryBiz = "All";
+
+  function fmt(n) { return n.toLocaleString("en-IN"); }
+
+  /* ---------------- Planning view ---------------- */
+  var zoneSelect = document.getElementById("zoneSelect");
+  var zoneSelect2 = document.getElementById("zoneSelect2");
+  [zoneSelect, zoneSelect2].forEach(function (sel) {
+    for (var z = 1; z <= ZONES; z++) {
+      var o = document.createElement("option"); o.value = z; o.textContent = "Zone " + z; sel.appendChild(o);
+    }
+    sel.value = state.zone;
+  });
+  function onZoneChange() { state.zone = parseInt(this.value, 10); syncFilterControls(); renderPlanning(); }
+  zoneSelect.addEventListener("change", onZoneChange);
+  zoneSelect2.addEventListener("change", onZoneChange);
+
+  var bizSelect = document.getElementById("bizSelect");
+  var bizSelect2 = document.getElementById("bizSelect2");
+  function onBizChange() { state.biz = this.value; syncFilterControls(); renderPlanning(); }
+  bizSelect.addEventListener("change", onBizChange);
+  bizSelect2.addEventListener("change", onBizChange);
+
+  function syncFilterControls() {
+    [zoneSelect, zoneSelect2].forEach(function (sel) { sel.value = state.zone; });
+    [bizSelect, bizSelect2].forEach(function (sel) { sel.value = state.biz; });
+  }
+
+  function currentRows() {
+    var rows = zoneRows(state.zone);
+    if (state.biz !== "All") rows = rows.filter(function (r) { return r.biz === state.biz; });
+    return rows;
+  }
+
+  function renderSummaryBanner() {
+    var el = document.getElementById("summaryBanner");
+    var rows = currentRows();
+    var scope = state.biz === "All" ? "all businesses" : state.biz;
+
+    if (!state.uploaded[state.zone]) {
+      el.innerHTML =
+        '<div class="banner-awaited">' +
+          '<div class="msg"><b>Zonal forecast awaited</b> — upload Zone ' + state.zone + '\'s forecast to see the deviation against EasyReplenish\'s check.</div>' +
+          '<div class="csv-controls">' +
+            '<button type="button" class="btn small ghost" id="btnSampleCsv">Download sample CSV</button>' +
+            '<label class="btn small primary" for="csvUpload">Upload zonal forecast (CSV)</label>' +
+            '<input type="file" id="csvUpload" accept=".csv">' +
+          '</div>' +
+        '</div>';
+      wireCsvControls();
+      return;
+    }
+
+    var lower = rows.filter(function (r) { return r.flagged && r.devPct < 0; });
+    var higher = rows.filter(function (r) { return r.flagged && r.devPct > 0; });
+
+    function bucketHtml(cls, label, list) {
+      var erSum = list.reduce(function (a, r) { return a + r.er; }, 0);
+      var zSum = list.reduce(function (a, r) { return a + r.zonal; }, 0);
+      var pct = erSum > 0 ? Math.round((Math.abs(zSum - erSum) / erSum) * 100) : 0;
+      var approved = list.filter(function (r) { return state.decisions[state.zone + "|" + r.code] === "approved"; }).length;
+      var rejected = list.filter(function (r) { return state.decisions[state.zone + "|" + r.code] === "rejected"; }).length;
+      var awaiting = list.length - approved - rejected;
+      return '<div class="summary-card ' + cls + '">' +
+        '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
+        '<div class="sc-count">' + list.length + '<span>SKUs</span></div>' +
+        '<div class="sc-dev">' + fmt(Math.abs(zSum - erSum)) + ' units total deviation (' + pct + '%)</div>' +
+        '<div class="status-row">' +
+          '<div class="st approved"><span class="n">' + approved + '</span><span class="l">Approved</span></div>' +
+          '<div class="st rejected"><span class="n">' + rejected + '</span><span class="l">Rejected</span></div>' +
+          '<div class="st awaiting"><span class="n">' + awaiting + '</span><span class="l">Awaiting</span></div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    el.innerHTML =
+      '<div class="summary-split">' +
+        bucketHtml("lower", "Zonal forecast lower than EasyReplenish", lower) +
+        bucketHtml("higher", "Zonal forecast higher than EasyReplenish", higher) +
+      '</div>' +
+      '<div class="csv-hint">Zone ' + state.zone + ', ' + scope + ' — forecast uploaded. <button type="button" class="btn small ghost" id="btnReupload" style="margin-left:8px;">Re-upload CSV</button></div>';
+    document.getElementById("btnReupload").addEventListener("click", function () {
+      state.uploaded[state.zone] = false;
+      renderPlanning();
+    });
+  }
+
+  function sampleCsvFor(zone, biz) {
+    var rows = zoneRows(zone);
+    if (biz !== "All") rows = rows.filter(function (r) { return r.biz === biz; });
+    var lines = ["sku_code,sku_name,month1_units,month2_units,month3_units"];
+    rows.forEach(function (r) {
+      lines.push([r.code, '"' + r.name + '"', r.zonalMonths[0], r.zonalMonths[1], r.zonalMonths[2]].join(","));
+    });
+    return lines.join("\n");
+  }
+
+  function parseCsv(text) {
+    var lines = text.split(/\r?\n/).filter(function (l) { return l.trim().length; });
+    var out = {};
+    for (var i = 1; i < lines.length; i++) {
+      var parts = lines[i].match(/(".*?"|[^,]+)/g);
+      if (!parts || parts.length < 5) continue;
+      var code = parts[0].trim();
+      var m1 = parseInt(parts[2], 10) || 0, m2 = parseInt(parts[3], 10) || 0, m3 = parseInt(parts[4], 10) || 0;
+      out[code] = { months: [m1, m2, m3], total: m1 + m2 + m3 };
+    }
+    return out;
+  }
+
+  var uploadOverride = {}; // "zone|code" -> {months,total} from an actually-uploaded file
+
+  function wireCsvControls() {
+    var btnSample = document.getElementById("btnSampleCsv");
+    if (btnSample) btnSample.addEventListener("click", function () {
+      var csv = sampleCsvFor(state.zone, state.biz);
+      var blob = new Blob([csv], { type: "text/csv" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "zonal_forecast_zone" + state.zone + "_" + state.biz.toLowerCase() + ".csv";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+    var input = document.getElementById("csvUpload");
+    if (input) input.addEventListener("change", function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        var parsed = parseCsv(String(reader.result));
+        Object.keys(parsed).forEach(function (code) { uploadOverride[state.zone + "|" + code] = parsed[code]; });
+        state.uploaded[state.zone] = true;
+        renderPlanning();
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  function computeFinal(code, zTotal, erTotal, uploaded, decision) {
+    var key = state.zone + "|" + code;
+    if (Object.prototype.hasOwnProperty.call(state.finalOverride, key)) return state.finalOverride[key];
+    if (!uploaded) return null;
+    return decision === "approved" ? erTotal : zTotal;
+  }
+
+  function renderGrid() {
+    var list = document.getElementById("gridList");
+    var rows = currentRows();
+    var uploaded = !!state.uploaded[state.zone];
+    list.innerHTML = rows.map(function (r) {
+      var override = uploadOverride[state.zone + "|" + r.code];
+      var zTotal = override ? override.total : r.zonal;
+      var devPct = uploaded ? Math.round(((zTotal - r.er) / r.er) * 100) : r.devPct;
+      var flagged = uploaded ? Math.abs(devPct) >= 15 : false;
+
+      var zonalCellHtml;
+      if (uploaded) {
+        var devCls = flagged ? (devPct < 0 ? "lo" : "hi") : "ok";
+        zonalCellHtml = '<div class="fc-total">' + fmt(zTotal) + ' <span class="dev-inline ' + devCls + '">(' + (devPct > 0 ? "+" : "") + devPct + '%)</span></div>';
+      } else {
+        zonalCellHtml = '<div class="fc-total pending">Awaited</div>';
+      }
+
+      var reasonHtml = (uploaded && flagged && r.reason)
+        ? '<span class="reason-tag" tabindex="0" data-tip="' + r.tip + '">' + r.reason + '</span>'
+        : '<span class="reason-none">—</span>';
+
+      var decision = state.decisions[state.zone + "|" + r.code];
+      var statusHtml;
+      if (!uploaded) {
+        statusHtml = '';
+      } else if (!flagged) {
+        statusHtml = '<span class="status-badge inline">In line</span>';
+      } else if (decision === "approved") {
+        statusHtml = '<span class="status-badge approved">Approved</span><button type="button" class="change-link" data-change="' + r.code + '" style="display:inline-block;">Change</button>';
+      } else if (decision === "rejected") {
+        statusHtml = '<span class="status-badge rejected">Rejected</span><button type="button" class="change-link" data-change="' + r.code + '" style="display:inline-block;">Change</button>';
+      } else {
+        statusHtml = '<span class="status-badge needs">Needs review</span>' +
+          '<div class="rc-actions">' +
+            '<button type="button" class="primary" data-approve="' + r.code + '">Approve</button>' +
+            '<button type="button" class="danger" data-reject="' + r.code + '">Reject</button>' +
+          '</div>';
+      }
+
+      var finalVal = computeFinal(r.code, zTotal, r.er, uploaded, decision);
+      var finalHtml = uploaded
+        ? '<input type="text" inputmode="numeric" class="final-input tabular" data-final="' + r.code + '" value="' + fmt(finalVal) + '">'
+        : '<input type="text" class="final-input tabular" disabled placeholder="—">';
+
+      return '<div class="grid-row">' +
+        '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
+        '<div class="fc-cell"><div class="fc-total">' + fmt(r.er) + '</div></div>' +
+        '<div class="fc-cell zonal">' + zonalCellHtml + '</div>' +
+        '<div>' + finalHtml + '</div>' +
+        '<div>' + reasonHtml + '</div>' +
+        '<div>' + statusHtml + '</div>' +
+      '</div>';
+    }).join("");
+
+    list.querySelectorAll("[data-approve]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = state.zone + "|" + btn.getAttribute("data-approve");
+        state.decisions[key] = "approved";
+        delete state.finalOverride[key];
+        renderPlanning();
+      });
+    });
+    list.querySelectorAll("[data-reject]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = state.zone + "|" + btn.getAttribute("data-reject");
+        state.decisions[key] = "rejected";
+        delete state.finalOverride[key];
+        renderPlanning();
+      });
+    });
+    list.querySelectorAll("[data-change]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var key = state.zone + "|" + btn.getAttribute("data-change");
+        delete state.decisions[key];
+        delete state.finalOverride[key];
+        renderPlanning();
+      });
+    });
+    list.querySelectorAll("[data-final]").forEach(function (inp) {
+      inp.addEventListener("focus", function () { this.select(); });
+      inp.addEventListener("change", function () {
+        var raw = this.value.replace(/[^0-9]/g, "");
+        var key = state.zone + "|" + this.getAttribute("data-final");
+        state.finalOverride[key] = raw ? parseInt(raw, 10) : 0;
+        renderPlanning();
+      });
+    });
+  }
+
+  function renderPlanning() {
+    renderSummaryBanner();
+    renderGrid();
+    renderSummaryTab(); // keep the "live" zone in sync if user is toggling back and forth
+    renderSystemForecast();
+    renderAccuracy();
+    renderBusiness();
+  }
+
+  /* ---------------- System Forecast view ---------------- */
+  function renderSystemForecast() {
+    var list = document.getElementById("sfList");
+    if (!list) return;
+    var rows = zoneRows(state.zone);
+    if (state.biz !== "All") rows = rows.filter(function (r) { return r.biz === state.biz; });
+
+    list.innerHTML = rows.map(function (r) {
+      var trendCls = r.trendTag === "Increasing" ? "up" : r.trendTag === "Decreasing" ? "down" : r.trendTag === "Constant" ? "flat" : "none";
+      var trendArrow = trendCls === "up" ? "↑" : trendCls === "down" ? "↓" : trendCls === "flat" ? "→" : "—";
+      var seasonCls = r.season > 0 ? "pos" : r.season < 0 ? "neg" : "";
+      var seasonStr = (r.season > 0 ? "+" : "") + Math.round(r.season * 100) + "%";
+
+      var hasHistory = r.l30 !== null;
+      var sales90Html = hasHistory ? '<div class="sv">' + fmt(r.l30 + r.p30 + r.pp30) + '</div>' : '<div class="sv muted">No history</div>';
+      var l30Html = hasHistory ? '<div class="sv">' + fmt(r.l30) + '</div>' : '<div class="sv muted">No history</div>';
+      var p30Html = hasHistory ? '<div class="sv">' + fmt(r.p30) + '</div>' : '<div class="sv muted">—</div>';
+      var pp30Html = hasHistory ? '<div class="sv">' + fmt(r.pp30) + '</div>' : '<div class="sv muted">—</div>';
+
+      return '<div class="sf-card">' +
+        '<div class="sf-head">' +
+          '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
+          '<div class="sf-tags">' +
+            '<span class="cls-tag ' + r.cls + '">' + CLS_LABEL[r.cls] + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sf-stats">' +
+          '<div class="sf-stat"><span class="sl">Sales (90 days)</span>' + sales90Html + '</div>' +
+          '<div class="sf-recent">' +
+            '<div class="sf-recent-head"><span class="sl">Recent sales — 30-day windows</span><span class="trend-tag ' + trendCls + '">' + trendArrow + ' ' + r.trendTag + '</span></div>' +
+            '<div class="sf-recent-cols">' +
+              '<div class="sf-stat"><span class="sl">Last 30 days</span>' + l30Html + '</div>' +
+              '<div class="sf-stat"><span class="sl">31–60 days ago</span>' + p30Html + '</div>' +
+              '<div class="sf-stat"><span class="sl">61–90 days ago</span>' + pp30Html + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sf-stat season"><span class="sl">Seasonality</span><div class="sv ' + seasonCls + '">' + seasonStr + '</div></div>' +
+          '<div class="sf-stat final"><span class="sl">3-month forecast</span><div class="sv">' + fmt(r.er) + '</div></div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  /* ---------------- Forecast Accuracy view ---------------- */
+  var accuracyBiz = "All";
+
+  function scoreCard(cls, label, acc, excess) {
+    return '<div class="summary-card ' + cls + '">' +
+      '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
+      '<div class="sc-count">' + acc + '<span>% accurate</span></div>' +
+      '<div class="sc-dev">' + fmt(excess) + ' units of excess inventory</div>' +
+    '</div>';
+  }
+
+  function accuracyCardHtml(r) {
+    var erA = accuracyOf(r.er, r.actual);
+    var zA = accuracyOf(r.zonal, r.actual);
+    var reasonHtml = r.reason
+      ? '<span class="reason-tag" tabindex="0" data-tip="' + r.tip + '">' + r.reason + '</span>'
+      : '';
+    return '<div class="sf-card">' +
+      '<div class="sf-head">' +
+        '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
+        '<div class="sf-tags">' + reasonHtml + '</div>' +
+      '</div>' +
+      '<div class="sf-stats">' +
+        '<div class="sf-stat"><span class="sl">EasyReplenish forecast</span><div class="sv">' + fmt(r.er) + '</div><span class="acc-pill ' + accPillCls(erA) + '">' + erA + '% accurate</span></div>' +
+        '<div class="sf-stat"><span class="sl">Zonal forecast</span><div class="sv">' + fmt(r.zonal) + '</div><span class="acc-pill ' + accPillCls(zA) + '">' + zA + '% accurate</span></div>' +
+        '<div class="sf-stat"><span class="sl">Approved (used)</span><div class="sv">' + fmt(r.approved) + '</div></div>' +
+        '<div class="sf-stat final"><span class="sl">Actual sales</span><div class="sv">' + fmt(r.actual) + '</div></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  var accuracyToggle = document.getElementById("accuracyBizToggle");
+  accuracyToggle.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-biz]");
+    if (!btn) return;
+    accuracyBiz = btn.getAttribute("data-biz");
+    accuracyToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+    renderAccuracy();
+  });
+
+  function accuracyRowsFor(zone) {
+    var rows = histRows(zone);
+    if (accuracyBiz !== "All") rows = rows.filter(function (r) { return r.biz === accuracyBiz; });
+    return rows;
+  }
+
+  function renderAccuracy() {
+    var scorecardEl = document.getElementById("accuracyScorecard");
+    var benefitEl = document.getElementById("accuracyBenefit");
+    var zoneListEl = document.getElementById("accuracyZoneList");
+    if (!scorecardEl) return;
+
+    // ---- overall, all zones ----
+    var allRows = [];
+    for (var z = 1; z <= ZONES; z++) { allRows = allRows.concat(accuracyRowsFor(z)); }
+
+    var erAcc = weightedAccuracy(allRows, "er");
+    var zonalAcc = weightedAccuracy(allRows, "zonal");
+    var approvedAcc = weightedAccuracy(allRows, "approved");
+    var erExcess = excessUnits(allRows, "er");
+    var zonalExcess = excessUnits(allRows, "zonal");
+    var approvedExcess = excessUnits(allRows, "approved");
+
+    scorecardEl.innerHTML =
+      scoreCard("er", "EasyReplenish forecast, used directly", erAcc, erExcess) +
+      scoreCard("zonal", "Zonal forecast, used directly", zonalAcc, zonalExcess) +
+      scoreCard("approved", "What was actually approved", approvedAcc, approvedExcess);
+
+    if (zonalExcess > 0 && erExcess < zonalExcess) {
+      var pct = Math.round(((zonalExcess - erExcess) / zonalExcess) * 100);
+      benefitEl.innerHTML = "Had EasyReplenish's forecast been used directly this cycle, excess inventory would have been <b>" +
+        pct + "% lower</b> than the zonal forecast alone — <b>" + fmt(zonalExcess - erExcess) + " fewer units</b> sitting unsold, across all 36 zones.";
+    } else {
+      benefitEl.innerHTML = "For this selection, EasyReplenish's and the zonal forecast produced similar excess inventory this cycle.";
+    }
+
+    // ---- zone by zone, expand for SKU split ----
+    var openZones = zoneListEl._open || {};
+    var html = "";
+    for (var zz = 1; zz <= ZONES; zz++) {
+      var zRows = accuracyRowsFor(zz);
+      var zErAcc = weightedAccuracy(zRows, "er");
+      var zZonalAcc = weightedAccuracy(zRows, "zonal");
+      var isOpen = !!openZones[zz];
+      html += '<div class="zone-row' + (isOpen ? ' open' : '') + '" data-zone="' + zz + '">' +
+        '<div class="zone-row-head" data-toggle="' + zz + '">' +
+          '<span class="zn">Zone ' + zz + '</span>' +
+          '<span class="zstat">ER <b>' + zErAcc + '%</b> · Zonal <b>' + zZonalAcc + '%</b> accurate</span>' +
+          '<span class="chev">▸</span>' +
+        '</div>' +
+        '<div class="zone-row-body">' +
+          '<div class="sf-list">' + zRows.map(accuracyCardHtml).join("") + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+    zoneListEl.innerHTML = html;
+    zoneListEl._open = openZones;
+    zoneListEl.querySelectorAll("[data-toggle]").forEach(function (h) {
+      h.addEventListener("click", function () {
+        var zn = this.getAttribute("data-toggle");
+        openZones[zn] = !openZones[zn];
+        renderAccuracy();
+      });
+    });
+  }
+
+  /* ---------------- Business Summary view ---------------- */
+  var businessBiz = "All";
+
+  function statCard(label, value, unit, sub) {
+    return '<div class="summary-card">' +
+      '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
+      '<div class="sc-count">' + value + '<span>' + unit + '</span></div>' +
+      (sub ? '<div class="sc-dev">' + sub + '</div>' : '') +
+    '</div>';
+  }
+
+  function businessCardHtml(r) {
+    return '<div class="sf-card">' +
+      '<div class="sf-head">' +
+        '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
+        '<div class="sf-tags"><span class="cls-tag ' + r.cls + '">' + CLS_LABEL[r.cls] + '</span></div>' +
+      '</div>' +
+      '<div class="sf-stats">' +
+        '<div class="sf-stat"><span class="sl">Recent sales (30d)</span><div class="sv">' + fmt(r.recentSales) + '</div></div>' +
+        '<div class="sf-stat"><span class="sl">Current inventory</span><div class="sv">' + fmt(r.currentInv) + '</div></div>' +
+        '<div class="sf-stat"><span class="sl">Days of inventory</span><div class="sv">' + r.doi + ' days</div><span class="acc-pill ' + doiPillCls(r.doi) + '">' + doiLabel(r.doi) + '</span></div>' +
+        '<div class="sf-stat final"><span class="sl">Excess inventory</span><div class="sv">' + fmt(r.excess) + '</div></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  var businessToggle = document.getElementById("businessBizToggle");
+  businessToggle.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-biz]");
+    if (!btn) return;
+    businessBiz = btn.getAttribute("data-biz");
+    businessToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+    renderBusiness();
+  });
+
+  function businessRowsFor(zone) {
+    var rows = inventoryRows(zone);
+    if (businessBiz !== "All") rows = rows.filter(function (r) { return r.biz === businessBiz; });
+    return rows;
+  }
+
+  function businessAgg(rows) {
+    var recentSales = rows.reduce(function (a, r) { return a + r.recentSales; }, 0);
+    var currentInv = rows.reduce(function (a, r) { return a + r.currentInv; }, 0);
+    var excess = rows.reduce(function (a, r) { return a + r.excess; }, 0);
+    var dailyRate = recentSales / 30;
+    var doi = dailyRate > 0 ? Math.round(currentInv / dailyRate) : 0;
+    return { recentSales: recentSales, currentInv: currentInv, doi: doi, excess: excess };
+  }
+
+  function renderBusiness() {
+    var scorecardEl = document.getElementById("businessScorecard");
+    var zoneListEl = document.getElementById("businessZoneList");
+    if (!scorecardEl) return;
+
+    var allRows = [];
+    for (var z = 1; z <= ZONES; z++) { allRows = allRows.concat(businessRowsFor(z)); }
+    var agg = businessAgg(allRows);
+    var excessPct = agg.currentInv > 0 ? Math.round((agg.excess / agg.currentInv) * 100) : 0;
+
+    scorecardEl.innerHTML =
+      statCard("Recent sales (30 days)", fmt(agg.recentSales), "units") +
+      statCard("Current inventory", fmt(agg.currentInv), "units") +
+      statCard("Days of inventory", agg.doi, "days") +
+      statCard("Excess inventory", fmt(agg.excess), "units", excessPct + "% of current inventory");
+
+    var openZones = zoneListEl._open || {};
+    var html = "";
+    for (var zz = 1; zz <= ZONES; zz++) {
+      var zRows = businessRowsFor(zz);
+      var zAgg = businessAgg(zRows);
+      var isOpen = !!openZones[zz];
+      html += '<div class="zone-row' + (isOpen ? ' open' : '') + '" data-zone="' + zz + '">' +
+        '<div class="zone-row-head" data-toggle="' + zz + '">' +
+          '<span class="zn">Zone ' + zz + '</span>' +
+          '<span class="zstat">DOI <b>' + zAgg.doi + ' days</b> · Excess <b>' + fmt(zAgg.excess) + '</b> units</span>' +
+          '<span class="chev">▸</span>' +
+        '</div>' +
+        '<div class="zone-row-body">' +
+          '<div class="sf-list">' + zRows.map(businessCardHtml).join("") + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+    zoneListEl.innerHTML = html;
+    zoneListEl._open = openZones;
+    zoneListEl.querySelectorAll("[data-toggle]").forEach(function (h) {
+      h.addEventListener("click", function () {
+        var zn = this.getAttribute("data-toggle");
+        openZones[zn] = !openZones[zn];
+        renderBusiness();
+      });
+    });
+  }
+
+  /* ---------------- Summary view ---------------- */
+  var summaryToggle = document.getElementById("summaryBizToggle");
+  summaryToggle.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-biz]");
+    if (!btn) return;
+    summaryBiz = btn.getAttribute("data-biz");
+    summaryToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+    renderSummaryTab();
+  });
+
+  function zoneStats(zone, biz) {
+    var live = zone === state.zone && !!state.uploaded[zone];
+    var rows = zoneRows(zone);
+    if (biz !== "All") rows = rows.filter(function (r) { return r.biz === biz; });
+
+    if (live) {
+      rows = rows.map(function (r) {
+        var override = uploadOverride[zone + "|" + r.code];
+        var zTotal = override ? override.total : r.zonal;
+        var devPct = Math.round(((zTotal - r.er) / r.er) * 100);
+        return { code: r.code, er: r.er, zonal: zTotal, devPct: devPct, flagged: Math.abs(devPct) >= 15 };
+      });
+    } else {
+      // deterministic synthetic decisions so the rollup doesn't look empty
+      rows = rows.map(function (r) {
+        var decisionRoll = rand("decision|" + zone + "|" + r.code);
+        var decision = decisionRoll < 0.55 ? "approved" : decisionRoll < 0.82 ? "rejected" : "awaiting";
+        return { code: r.code, er: r.er, zonal: r.zonal, devPct: r.devPct, flagged: r.flagged, syntheticDecision: decision };
+      });
+    }
+
+    var lower = rows.filter(function (r) { return r.flagged && r.devPct < 0; });
+    var higher = rows.filter(function (r) { return r.flagged && r.devPct > 0; });
+
+    function decisionCounts(list) {
+      if (live) {
+        var approved = list.filter(function (r) { return state.decisions[zone + "|" + r.code] === "approved"; }).length;
+        var rejected = list.filter(function (r) { return state.decisions[zone + "|" + r.code] === "rejected"; }).length;
+        return { approved: approved, rejected: rejected, awaiting: list.length - approved - rejected };
+      }
+      var approved2 = list.filter(function (r) { return r.syntheticDecision === "approved"; }).length;
+      var rejected2 = list.filter(function (r) { return r.syntheticDecision === "rejected"; }).length;
+      return { approved: approved2, rejected: rejected2, awaiting: list.length - approved2 - rejected2 };
+    }
+
+    return { live: live, total: rows.length, lower: lower, higher: higher, lowerDec: decisionCounts(lower), higherDec: decisionCounts(higher) };
+  }
+
+  function bucketCard(cls, label, list, dec) {
+    var erSum = list.reduce(function (a, r) { return a + r.er; }, 0);
+    var zSum = list.reduce(function (a, r) { return a + r.zonal; }, 0);
+    var pct = erSum > 0 ? Math.round((Math.abs(zSum - erSum) / erSum) * 100) : 0;
+    return '<div class="summary-card ' + cls + '">' +
+      '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
+      '<div class="sc-count">' + list.length + '<span>SKUs</span></div>' +
+      '<div class="sc-dev">' + fmt(Math.abs(zSum - erSum)) + ' units total deviation (' + pct + '%)</div>' +
+      '<div class="status-row">' +
+        '<div class="st approved"><span class="n">' + dec.approved + '</span><span class="l">Approved</span></div>' +
+        '<div class="st rejected"><span class="n">' + dec.rejected + '</span><span class="l">Rejected</span></div>' +
+        '<div class="st awaiting"><span class="n">' + dec.awaiting + '</span><span class="l">Awaiting</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderSummaryTab() {
+    // overall
+    var allLower = [], allHigher = [];
+    var overallDec = { approved: 0, rejected: 0, awaiting: 0 };
+    var overallDecH = { approved: 0, rejected: 0, awaiting: 0 };
+    for (var z = 1; z <= ZONES; z++) {
+      var s = zoneStats(z, summaryBiz);
+      allLower = allLower.concat(s.lower);
+      allHigher = allHigher.concat(s.higher);
+      overallDec.approved += s.lowerDec.approved; overallDec.rejected += s.lowerDec.rejected; overallDec.awaiting += s.lowerDec.awaiting;
+      overallDecH.approved += s.higherDec.approved; overallDecH.rejected += s.higherDec.rejected; overallDecH.awaiting += s.higherDec.awaiting;
+    }
+    document.getElementById("overallSummary").innerHTML =
+      bucketCard("lower", "Zonal forecast lower than EasyReplenish", allLower, overallDec) +
+      bucketCard("higher", "Zonal forecast higher than EasyReplenish", allHigher, overallDecH);
+
+    // per zone
+    var zoneListEl = document.getElementById("zoneList");
+    var openZones = zoneListEl._open || {};
+    var html = "";
+    for (var zz = 1; zz <= ZONES; zz++) {
+      var st = zoneStats(zz, summaryBiz);
+      var needReview = st.lower.length + st.higher.length;
+      var isOpen = !!openZones[zz];
+      html += '<div class="zone-row' + (isOpen ? ' open' : '') + '" data-zone="' + zz + '">' +
+        '<div class="zone-row-head" data-toggle="' + zz + '">' +
+          '<span class="zn">Zone ' + zz + (st.live ? '<span class="live-tag">Live</span>' : '') + '</span>' +
+          '<span class="zstat"><b>' + needReview + '</b> of ' + st.total + ' need review</span>' +
+          '<span class="chev">▸</span>' +
+        '</div>' +
+        '<div class="zone-row-body">' +
+          '<div class="summary-split">' +
+            bucketCard("lower", "Lower than EasyReplenish", st.lower, st.lowerDec) +
+            bucketCard("higher", "Higher than EasyReplenish", st.higher, st.higherDec) +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+    zoneListEl.innerHTML = html;
+    zoneListEl._open = openZones;
+    zoneListEl.querySelectorAll("[data-toggle]").forEach(function (h) {
+      h.addEventListener("click", function () {
+        var zn = this.getAttribute("data-toggle");
+        openZones[zn] = !openZones[zn];
+        renderSummaryTab();
+      });
+    });
+  }
+
+  /* ---------------- tabs ---------------- */
+  document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.toggle("active", b === btn); });
+      var target = btn.getAttribute("data-view");
+      document.getElementById("view-planning").classList.toggle("active", target === "planning");
+      document.getElementById("view-summary").classList.toggle("active", target === "summary");
+      document.getElementById("view-sysforecast").classList.toggle("active", target === "sysforecast");
+      document.getElementById("view-accuracy").classList.toggle("active", target === "accuracy");
+      document.getElementById("view-business").classList.toggle("active", target === "business");
+    });
+  });
+
+  renderPlanning();
+  renderSummaryTab();
+  renderAccuracy();
+  renderSystemForecast();
+  renderBusiness();
+})();
+</script>
+</body>
+</html>
