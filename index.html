@@ -188,6 +188,29 @@
   .cell-plain { font-weight: 400; color: var(--ink); font-size: 14px; }
   .fc-cell .fc-total { font-weight: 700; font-size: 14.5px; }
   .fc-cell .fc-total-plain { font-weight: 400; font-size: 14.5px; color: var(--ink); }
+  .er-tip-trigger {
+    position: relative; display: inline-block; font-size: 14.5px; font-weight: 400;
+    color: var(--accent); text-decoration: underline; text-decoration-style: dotted;
+    text-underline-offset: 3px; cursor: help;
+  }
+  .er-tip-panel {
+    position: absolute; top: 100%; left: 0; margin-top: 8px; z-index: 10; width: 240px;
+    background: var(--ink); color: var(--paper); border-radius: 10px; padding: 12px 14px;
+    box-shadow: 0 8px 24px rgba(17,24,39,0.22);
+    opacity: 0; transform: translateY(-4px); pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    text-align: left; white-space: normal;
+  }
+  .er-tip-trigger:hover .er-tip-panel, .er-tip-trigger:focus-visible .er-tip-panel {
+    opacity: 1; transform: translateY(0); pointer-events: auto;
+  }
+  .er-tip-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+  .er-tip-sep { height: 1px; background: rgba(255,255,255,0.15); margin: 8px 0; }
+  .er-tip-note { font-size: 12.5px; color: rgba(255,255,255,0.85); line-height: 1.45; }
+  .er-tip-panel .rs-row { font-size: 12.5px; }
+  .er-tip-panel .rs-m { color: rgba(255,255,255,0.6); }
+  .er-tip-panel .rs-v { color: #fff; }
+  .er-tip-panel .rs-v.muted { color: rgba(255,255,255,0.5); font-weight: 500; }
   .fc-cell.zonal .fc-total.pending { color: var(--ink-faint); font-weight: 600; }
   .dev-inline { font-weight: 700; font-size: 14.5px; }
   .dev-inline.lo { color: var(--danger); }
@@ -346,7 +369,7 @@
     <nav class="tabs">
       <button type="button" class="tab-btn active" data-view="planning">Demand Planning</button>
       <button type="button" class="tab-btn" data-view="summary">Demand Planning Summary</button>
-      <button type="button" class="tab-btn" data-view="sysforecast">System Forecast</button>
+      <button type="button" class="tab-btn" data-view="sysforecast" style="display:none;">System Forecast</button>
       <button type="button" class="tab-btn" data-view="accuracy">Forecast Accuracy</button>
       <button type="button" class="tab-btn" data-view="business">Inventory Summary</button>
     </nav>
@@ -397,7 +420,7 @@
 
     <div class="proto-frame">
       <div class="grid-head grid-cols">
-        <span>SKU</span><span>Product</span><span>EasyReplenish forecast</span><span>Zonal manager forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
+        <span>SKU</span><span>Product</span><span>EasyReplenish forecast (Aug – Oct 2026)</span><span>Zonal manager forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
       </div>
       <div class="grid-list grid-cols" id="gridList"></div>
       <div class="proto-note">3-month total shown per SKU. Sample data for this walkthrough — not Eveready's actual figures.</div>
@@ -668,6 +691,8 @@
       var row = buildRow(zoneName, sku);
       var prods = productsFor(sku);
       var weights = productWeights(zoneName, sku, prods);
+      var hasHistory = row.l30 !== null;
+      var lastYearTotal = lastYearSameQuarter(zoneName, sku);
       prods.forEach(function (p, i) {
         var w = weights[i];
         out.push({
@@ -675,7 +700,12 @@
           division: sku.division, cls: sku.cls,
           er: Math.max(1, Math.round(row.er * w)),
           zonal: Math.max(1, Math.round(row.zonal * w)),
-          devPct: row.devPct, flagged: row.flagged, reason: row.reason, tip: row.tip
+          devPct: row.devPct, flagged: row.flagged, reason: row.reason, tip: row.tip,
+          season: row.season, trendTag: row.trendTag,
+          l30: hasHistory ? Math.max(1, Math.round(row.l30 * w)) : null,
+          p30: hasHistory ? Math.max(1, Math.round(row.p30 * w)) : null,
+          pp30: hasHistory ? Math.max(1, Math.round(row.pp30 * w)) : null,
+          lastYear: lastYearTotal === null ? null : Math.max(1, Math.round(lastYearTotal * w))
         });
       });
     });
@@ -690,6 +720,16 @@
   }
 
   function zoneFactor(zone) { return 0.7 + rand("zf|" + zone) * 0.8; }
+
+  // Aug–Oct 2025 — same quarter, one year earlier. Independent seed from this year's
+  // numbers (so it's a genuine comparison, not a derived/proportional figure). New
+  // launches didn't exist yet last year, so they return null.
+  function lastYearSameQuarter(zone, sku) {
+    if (sku.cls === "new") return null;
+    var zf = 0.7 + rand("ly-zf|" + zone) * 0.8;
+    var jitter = 0.85 + rand("ly|" + zone + "|" + sku.code) * 0.3;
+    return Math.max(60, Math.round(sku.base * zf * jitter));
+  }
 
   function splitMonths(total, seedKey) {
     var w1 = 0.28 + rand(seedKey + "|m1") * 0.14;
@@ -1057,6 +1097,28 @@
     return decision === "approved" ? erTotal : zTotal;
   }
 
+  // Same build-up data shown on the System Forecast tab, surfaced inline on hover so the
+  // user doesn't have to leave Planning to see how a forecast number was reached.
+  function erTooltipHtml(r) {
+    var hasHistory = r.l30 !== null;
+    var seasonStr = (r.season > 0 ? "+" : "") + Math.round(r.season * 100) + "%";
+    var recentRows = hasHistory
+      ? '<div class="rs-row"><span class="rs-m">July 2026</span><span class="rs-v">' + fmt(r.l30) + '</span></div>' +
+        '<div class="rs-row"><span class="rs-m">June 2026</span><span class="rs-v">' + fmt(r.p30) + '</span></div>' +
+        '<div class="rs-row"><span class="rs-m">May 2026</span><span class="rs-v">' + fmt(r.pp30) + '</span></div>'
+      : '<div class="er-tip-note">New launch — no sales history yet. Estimated from a comparable product’s launch curve.</div>';
+    var lastYearHtml = r.lastYear === null
+      ? '<span class="rs-v muted">Not launched yet</span>'
+      : '<span class="rs-v">' + fmt(r.lastYear) + '</span>';
+    return '<div class="er-tip-panel">' +
+      '<div class="er-tip-title">How this forecast was built</div>' +
+      recentRows +
+      '<div class="er-tip-sep"></div>' +
+      '<div class="rs-row"><span class="rs-m">Aug–Oct 2025</span>' + lastYearHtml + '</div>' +
+      '<div class="rs-row"><span class="rs-m">Seasonality</span><span class="rs-v">' + seasonStr + '</span></div>' +
+    '</div>';
+  }
+
   function renderGrid() {
     var list = document.getElementById("gridList");
     if (!pState.zoneName) { list.innerHTML = ""; return; }
@@ -1106,7 +1168,7 @@
       return '<div class="grid-row">' +
         '<div class="cell-plain">' + r.skuName + '</div>' +
         '<div class="cell-plain">' + r.name + '</div>' +
-        '<div class="fc-cell"><div class="fc-total-plain">' + fmt(r.er) + '</div></div>' +
+        '<div class="fc-cell"><span class="er-tip-trigger" tabindex="0">' + fmt(r.er) + erTooltipHtml(r) + '</span></div>' +
         '<div class="fc-cell zonal">' + zonalCellHtml + '</div>' +
         '<div>' + finalHtml + '</div>' +
         '<div>' + reasonHtml + '</div>' +
