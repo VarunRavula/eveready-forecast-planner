@@ -61,9 +61,14 @@
   h1.page-title { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 4px; }
   p.page-sub { font-size: 14px; color: var(--ink-muted); margin: 0 0 22px; }
 
+  .planning-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 30px; }
+  .planning-head-text { flex: 0 0 auto; }
+  .planning-head-text .page-sub { margin-bottom: 0; }
+
   /* ---------- Filter bar ---------- */
   .filterbar { display: flex; align-items: flex-end; gap: 18px; margin-bottom: 20px; flex-wrap: wrap; }
   .field { display: flex; flex-direction: column; gap: 6px; }
+  .division-field { max-width: 220px; margin-bottom: 22px; }
   .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); }
   select.ctl {
     appearance: none; -webkit-appearance: none; font-family: var(--font); font-size: 14px; font-weight: 600; color: var(--ink);
@@ -71,9 +76,15 @@
     border: 1px solid var(--hairline-strong); border-radius: 10px; padding: 9px 34px 9px 12px; min-width: 190px; cursor: pointer;
   }
   select.ctl:hover { border-color: var(--accent); }
+  input.ctl {
+    appearance: none; -webkit-appearance: none; font-family: var(--font); font-size: 14px; font-weight: 600; color: var(--ink);
+    background: var(--paper-raised); border: 1px solid var(--hairline-strong); border-radius: 10px; padding: 9px 12px; width: 100%; cursor: text;
+  }
+  input.ctl:hover, input.ctl:focus { border-color: var(--accent); }
+  input.ctl::placeholder { color: var(--ink-faint); font-weight: 500; }
 
   /* ---------- Summary banner ---------- */
-  .summary-banner { margin-bottom: 22px; }
+  .summary-banner { flex: 1 1 320px; min-width: 260px; margin-bottom: 0; }
   .banner-awaited {
     display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
     border: 1px dashed var(--hairline-strong); border-radius: 14px; padding: 18px 22px; background: var(--paper-sunken);
@@ -81,6 +92,7 @@
   .banner-awaited .msg { font-size: 14.5px; font-weight: 600; color: var(--ink-muted); }
   .banner-awaited .msg b { color: var(--ink); }
   .csv-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .csv-controls-standalone { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
   .btn {
     font-family: var(--font); font-size: 13.5px; font-weight: 700; letter-spacing: 0.01em; padding: 9px 16px;
     border-radius: 999px; cursor: pointer; border: 1px solid var(--hairline-strong); background: var(--paper-raised); color: var(--ink);
@@ -103,6 +115,28 @@
   .summary-card .sc-label { font-size: 12.5px; font-weight: 700; color: var(--ink-muted); }
   .summary-card.lower .sc-label { color: var(--danger); }
   .summary-card.higher .sc-label { color: var(--warn); }
+  .summary-card.flagged { grid-column: 1 / -1; }
+  .summary-card.flagged-line { padding: 16px 20px; }
+  .summary-card.flagged-line .fl-label { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .summary-card.flagged-line .fl-row-under { display: flex; align-items: baseline; flex-wrap: wrap; gap: 24px; margin-top: 9px; }
+  .summary-card.flagged-line .fl-stat { font-size: 15px; color: var(--ink); }
+  .summary-card.flagged-line .fl-stat b { color: var(--ink); font-weight: 800; }
+  .summary-card.flagged-line .fl-awaiting b { color: var(--warn); }
+  .summary-card.flagged-line .fl-right b { color: var(--accent); }
+
+  .summary-card.accline { display: flex; flex-direction: column; }
+  .accline .ac-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 11px 0; }
+  .accline .ac-row + .ac-row { border-top: 1px solid var(--hairline); }
+  .accline .ac-label { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .accline .ac-stats { font-size: 14px; color: var(--ink-muted); white-space: nowrap; }
+  .accline .ac-stats b { font-weight: 800; }
+  .accline .ac-acc.good { color: var(--success); }
+  .accline .ac-acc.warn { color: var(--warn); }
+  .accline .ac-acc.bad { color: var(--danger); }
+  .accline .ac-row.primary {
+    background: var(--accent-soft); margin: -18px -20px 0; padding: 14px 20px; border-radius: 13px 13px 0 0;
+  }
+  .accline .ac-row.primary .ac-label { color: var(--accent-strong); }
   .summary-card .sc-count { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; margin-top: 6px; }
   .summary-card .sc-count span { font-size: 14px; font-weight: 600; color: var(--ink-faint); margin-left: 6px; }
   .summary-card .sc-dev { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
@@ -135,7 +169,13 @@
 
   /* ---------- Grid ---------- */
   .proto-frame { border: 1px solid var(--hairline-strong); border-radius: 16px; overflow: hidden; background: var(--paper-raised); box-shadow: var(--shadow-card); }
-  .grid-cols { --gg: minmax(180px,1.3fr) minmax(110px,0.9fr) minmax(150px,1.15fr) minmax(120px,0.95fr) minmax(100px,0.85fr) minmax(190px,1.15fr); }
+  .grid-cols { --gg: minmax(115px,0.8fr) minmax(150px,1.05fr) minmax(105px,0.8fr) minmax(135px,1fr) minmax(110px,0.85fr) minmax(90px,0.7fr) minmax(175px,1.05fr); }
+  .grid-cols-sf { --gg: minmax(110px,0.75fr) minmax(150px,0.95fr) minmax(230px,1.5fr) minmax(90px,0.6fr) minmax(120px,0.8fr) minmax(150px,0.9fr); }
+  .rs-col { display: flex; flex-direction: column; gap: 4px; }
+  .rs-row { display: flex; justify-content: space-between; gap: 14px; font-size: 12.5px; }
+  .rs-row .rs-m { color: var(--ink-faint); }
+  .rs-row .rs-v { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .rs-col .trend-tag { align-self: flex-start; margin-top: 3px; }
   .grid-head {
     display: grid; grid-template-columns: var(--gg); column-gap: 20px; padding: 10px 22px;
     border-bottom: 1px solid var(--hairline-strong); background: var(--paper-tint);
@@ -145,7 +185,9 @@
   .grid-row { background: var(--paper-raised); padding: 14px 22px; display: grid; grid-template-columns: var(--gg); column-gap: 20px; align-items: center; }
   .sku-name { font-weight: 700; color: var(--ink); font-size: 14px; }
   .sku-code { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+  .cell-plain { font-weight: 400; color: var(--ink); font-size: 14px; }
   .fc-cell .fc-total { font-weight: 700; font-size: 14.5px; }
+  .fc-cell .fc-total-plain { font-weight: 400; font-size: 14.5px; color: var(--ink); }
   .fc-cell.zonal .fc-total.pending { color: var(--ink-faint); font-weight: 600; }
   .dev-inline { font-weight: 700; font-size: 14.5px; }
   .dev-inline.lo { color: var(--danger); }
@@ -192,9 +234,6 @@
   }
 
   /* ---------- Summary tab ---------- */
-  .biz-toggle { display: inline-flex; border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 3px; gap: 2px; margin-bottom: 22px; }
-  .biz-toggle button { border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
-  .biz-toggle button.active { background: var(--accent); color: #fff; }
   .overall-wrap { margin-bottom: 30px; }
   .overall-wrap .summary-split { margin-top: 14px; }
 
@@ -260,6 +299,26 @@
 
   footer.appfoot { border-top: 1px solid var(--hairline); padding: 26px 28px; text-align: center; margin-top: 40px; }
   footer.appfoot p { max-width: 1240px; margin: 0 auto; font-size: 12px; color: var(--ink-faint); }
+
+  /* ---------------- tab explainer toast ---------------- */
+  .tab-toast { position: fixed; top: 78px; right: 24px; z-index: 50; max-width: 360px; pointer-events: none; }
+  .tab-toast-card {
+    pointer-events: auto; background: var(--paper-raised); border: 1px solid var(--hairline-strong);
+    border-left: 3px solid var(--accent); border-radius: 14px; box-shadow: var(--shadow-card);
+    padding: 14px 14px 14px 16px; display: flex; gap: 12px; align-items: flex-start;
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .tab-toast-card.show { opacity: 1; transform: translateY(0); }
+  .tab-toast-text { font-size: 13px; line-height: 1.55; color: var(--ink-muted); flex: 1; }
+  .tab-toast-close {
+    flex: 0 0 auto; width: 26px; height: 26px; border: none; background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%;
+  }
+  .tab-toast-close:hover { background: var(--paper-tint); }
+  .tab-toast-x { font-size: 15px; line-height: 1; color: var(--ink-faint); }
+  .tab-toast-close:hover .tab-toast-x { color: var(--ink); }
+  @media (max-width: 480px) { .tab-toast { left: 16px; right: 16px; max-width: none; } }
 </style>
 </head>
 <body>
@@ -269,42 +328,59 @@
     <div class="brand"><img class="mark-img" alt="EasyReplenish" src="data:image/png;base64,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"><span class="ctx">Forecast Planning — Eveready</span></div>
     <nav class="tabs">
       <button type="button" class="tab-btn active" data-view="planning">Planning</button>
-      <button type="button" class="tab-btn" data-view="summary">Summary</button>
+      <button type="button" class="tab-btn" data-view="summary">Planning Summary</button>
       <button type="button" class="tab-btn" data-view="sysforecast">System Forecast</button>
       <button type="button" class="tab-btn" data-view="accuracy">Forecast Accuracy</button>
-      <button type="button" class="tab-btn" data-view="business">Business Summary</button>
+      <button type="button" class="tab-btn" data-view="business">Inventory Summary</button>
     </nav>
   </div>
 </header>
+
+<div class="tab-toast" id="tabToast" aria-live="polite"></div>
 
 <div class="shell">
 
   <!-- PLANNING VIEW -->
   <section id="view-planning" class="view active">
-    <h1 class="page-title">Planning</h1>
-    <p class="page-sub">Compare your zonal forecast against EasyReplenish's independent check, SKU by SKU.</p>
-
-    <div class="summary-banner" id="summaryBanner"></div>
+    <div class="planning-head-row">
+      <div class="planning-head-text">
+        <h1 class="page-title">Planning</h1>
+        <p class="page-sub">Compare your zonal forecast against EasyReplenish</p>
+      </div>
+      <div class="summary-banner" id="summaryBanner"></div>
+    </div>
 
     <div class="filterbar">
       <div class="field">
-        <label for="zoneSelect">Zone</label>
-        <select class="ctl" id="zoneSelect"></select>
+        <label for="pRegion">Region</label>
+        <select class="ctl" id="pRegion"></select>
       </div>
       <div class="field">
-        <label for="bizSelect">Business</label>
-        <select class="ctl" id="bizSelect">
+        <label for="pZone">Zone</label>
+        <select class="ctl" id="pZone"></select>
+      </div>
+      <div class="field">
+        <label for="pDepot">Depot</label>
+        <select class="ctl" id="pDepot"></select>
+      </div>
+      <div class="field">
+        <label for="pDivision">Division</label>
+        <select class="ctl" id="pDivision">
           <option value="All">All</option>
           <option value="Batteries">Batteries</option>
           <option value="Lighting">Lighting</option>
-          <option value="Others">Others</option>
+          <option value="Flashlights">Flashlights</option>
         </select>
+      </div>
+      <div class="field" style="min-width:240px;">
+        <label for="pSearch">Search SKU / product</label>
+        <input class="ctl" type="text" id="pSearch" placeholder="e.g. torch, 915, blister...">
       </div>
     </div>
 
     <div class="proto-frame">
       <div class="grid-head grid-cols">
-        <span>SKU</span><span>EasyReplenish forecast</span><span>Zonal forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
+        <span>SKU</span><span>Product</span><span>EasyReplenish forecast</span><span>Zonal forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
       </div>
       <div class="grid-list grid-cols" id="gridList"></div>
       <div class="proto-note">3-month total shown per SKU. Sample data for this walkthrough — not Eveready's actual figures.</div>
@@ -313,14 +389,17 @@
 
   <!-- SUMMARY VIEW -->
   <section id="view-summary" class="view">
-    <h1 class="page-title">Summary</h1>
+    <h1 class="page-title">Planning Summary</h1>
     <p class="page-sub">Deviation between zonal and EasyReplenish forecasts, rolled up across all 36 zones.</p>
 
-    <div class="biz-toggle" id="summaryBizToggle">
-      <button type="button" class="active" data-biz="All">All</button>
-      <button type="button" data-biz="Batteries">Batteries</button>
-      <button type="button" data-biz="Lighting">Lighting</button>
-      <button type="button" data-biz="Others">Others</button>
+    <div class="field division-field">
+      <label for="summaryDivisionSelect">Division</label>
+      <select class="ctl" id="summaryDivisionSelect">
+        <option value="All">All</option>
+        <option value="Batteries">Batteries</option>
+        <option value="Lighting">Lighting</option>
+        <option value="Flashlights">Flashlights</option>
+      </select>
     </div>
 
     <div class="overall-wrap">
@@ -334,7 +413,7 @@
   <!-- SYSTEM FORECAST VIEW -->
   <section id="view-sysforecast" class="view">
     <h1 class="page-title">System Forecast</h1>
-    <p class="page-sub">How EasyReplenish's 3-month forecast for each SKU is built, from recent sell-through through to seasonality.</p>
+    <p class="page-sub">How EasyReplenish's 3-month forecast for each product is built, from recent sell-through through to seasonality.</p>
 
     <div class="filterbar">
       <div class="field">
@@ -342,7 +421,7 @@
         <select class="ctl" id="zoneSelect2"></select>
       </div>
       <div class="field">
-        <label for="bizSelect2">Business</label>
+        <label for="bizSelect2">Division</label>
         <select class="ctl" id="bizSelect2">
           <option value="All">All</option>
           <option value="Batteries">Batteries</option>
@@ -350,13 +429,21 @@
           <option value="Others">Others</option>
         </select>
       </div>
+      <div class="field" style="min-width:220px;">
+        <label for="sfSearch">Search SKU / product</label>
+        <input class="ctl" type="text" id="sfSearch" placeholder="e.g. torch, blister...">
+      </div>
+      <div class="field" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button type="button" class="btn small ghost" id="btnDownloadSfCsv">Download Forecast (CSV)</button>
+      </div>
     </div>
 
     <div class="metrics-panel">
       <div class="mp-title">Metrics used to build this forecast</div>
       <ol>
-        <li><b>Last 90 days of sell-through</b>, read as three rolling 30-day windows</li>
-        <li><b>Trend</b> — latest 30-day run-rate vs. the two 30-day windows before it</li>
+        <li><b>Last 3 months of sell-through</b> — May, June, and July 2026</li>
+        <li><b>Trend</b> — July 2026 vs. the two months before it</li>
         <li><b>Seasonality &amp; festival calendar</b> — expected uplift or dip for this forecast window</li>
         <li><b>Product lifecycle stage</b> — new launch, best seller, slow mover, or non-mover</li>
         <li>For new launches: <b>comparable-SKU launch curve</b>, normalized to this zone</li>
@@ -364,8 +451,11 @@
     </div>
 
     <div class="proto-frame">
-      <div class="sf-list" id="sfList"></div>
-      <div class="proto-note">3-month total = latest 30-day run-rate × 3, adjusted for seasonality (new launches use a comparable-SKU curve instead). Sample data for this walkthrough — not Eveready's actual figures.</div>
+      <div class="grid-head grid-cols-sf">
+        <span>SKU</span><span>Product</span><span>Recent Sales</span><span>Seasonality</span><span>Classification</span><span>Forecast (Aug – Oct 2026)</span>
+      </div>
+      <div class="grid-list grid-cols-sf" id="sfList"></div>
+      <div class="proto-note">Forecast (Aug – Oct 2026) = July 2026's run-rate × 3, adjusted for seasonality (new launches use a comparable-SKU curve instead). Sample data for this walkthrough — not Eveready's actual figures.</div>
     </div>
   </section>
 
@@ -375,15 +465,18 @@
     <p class="page-sub">How the last closed cycle's forecasts held up against actual sales.</p>
     <div class="cycle-tag">Cycle: May – Jul 2026 (closed)</div>
 
-    <div class="biz-toggle" id="accuracyBizToggle">
-      <button type="button" class="active" data-biz="All">All</button>
-      <button type="button" data-biz="Batteries">Batteries</button>
-      <button type="button" data-biz="Lighting">Lighting</button>
-      <button type="button" data-biz="Others">Others</button>
+    <div class="field division-field">
+      <label for="accuracyDivisionSelect">Division</label>
+      <select class="ctl" id="accuracyDivisionSelect">
+        <option value="All">All</option>
+        <option value="Batteries">Batteries</option>
+        <option value="Lighting">Lighting</option>
+        <option value="Flashlights">Flashlights</option>
+      </select>
     </div>
 
     <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
-    <div class="summary-triple" id="accuracyScorecard" style="margin-top:14px;"></div>
+    <div id="accuracyScorecard" style="margin-top:14px;"></div>
     <div class="benefit-note" id="accuracyBenefit"></div>
 
     <div class="field" style="margin-bottom:10px;"><label>Zone by zone</label></div>
@@ -393,15 +486,18 @@
 
   <!-- BUSINESS SUMMARY VIEW -->
   <section id="view-business" class="view">
-    <h1 class="page-title">Business Summary</h1>
+    <h1 class="page-title">Inventory Summary</h1>
     <p class="page-sub">Where inventory sits today — overall, then zone by zone, then SKU by SKU.</p>
     <div class="cycle-tag">Target: 45 days of cover — inventory held beyond that counts as excess</div>
 
-    <div class="biz-toggle" id="businessBizToggle">
-      <button type="button" class="active" data-biz="All">All</button>
-      <button type="button" data-biz="Batteries">Batteries</button>
-      <button type="button" data-biz="Lighting">Lighting</button>
-      <button type="button" data-biz="Others">Others</button>
+    <div class="field division-field">
+      <label for="businessDivisionSelect">Division</label>
+      <select class="ctl" id="businessDivisionSelect">
+        <option value="All">All</option>
+        <option value="Batteries">Batteries</option>
+        <option value="Lighting">Lighting</option>
+        <option value="Flashlights">Flashlights</option>
+      </select>
     </div>
 
     <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
@@ -438,32 +534,135 @@
 
   /* ---------------- SKU catalog ---------------- */
   var SKUS = [
-    { code: "BAT-01", name: "AA Alkaline (4-pack)", biz: "Batteries", base: 42000, cls: "best", season: 0.08, seasonLabel: "Festive gifting & torch demand" },
-    { code: "BAT-02", name: "AAA Alkaline (4-pack)", biz: "Batteries", base: 31000, cls: "best", season: 0.06, seasonLabel: "Festive gifting & torch demand" },
-    { code: "BAT-03", name: "9V Battery", biz: "Batteries", base: 6200, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick", flag: { dir: "hi", reason: "Zone bias", tip: "Zone historically over-forecasts this SKU — bias adjustment applied.", mag: [0.40, 0.60] } },
-    { code: "BAT-04", name: "AA Carbon Zinc (2-pack)", biz: "Batteries", base: 18000, cls: "slow", season: 0.04, seasonLabel: "Minor festive uptick" },
-    { code: "BAT-05", name: "AAA Carbon Zinc (2-pack)", biz: "Batteries", base: 15500, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick" },
-    { code: "BAT-06", name: "C-Cell Battery", biz: "Batteries", base: 4100, cls: "non", season: 0.02, seasonLabel: "Declining format, largely flat" },
-    { code: "BAT-07", name: "D-Cell Battery", biz: "Batteries", base: 5300, cls: "slow", season: 0.05, seasonLabel: "Festive travel & power-cut demand", flag: { dir: "hi", reason: "Distributor returns", tip: "High distributor returns last cycle not yet reflected in the zonal number.", mag: [0.30, 0.50] } },
-    { code: "BAT-08", name: "Rechargeable AA (2-pack)", biz: "Batteries", base: 3800, cls: "slow", season: 0.02, seasonLabel: "No strong seasonal pull" },
-    { code: "LGT-01", name: "LED Bulb 9W", biz: "Lighting", base: 5200, cls: "best", season: 0.25, seasonLabel: "Diwali lighting demand" },
-    { code: "LGT-02", name: "LED Bulb 12W", biz: "Lighting", base: 3100, cls: "slow", season: 0.22, seasonLabel: "Diwali lighting demand" },
-    { code: "LGT-03", name: "LED Tube Light 20W", biz: "Lighting", base: 2600, cls: "slow", season: 0.12, seasonLabel: "Diwali lighting demand" },
-    { code: "LGT-04", name: "LED Batten 36W", biz: "Lighting", base: 1800, cls: "slow", season: 0.10, seasonLabel: "Diwali lighting demand" },
-    { code: "LGT-05", name: "Torch — Rechargeable", biz: "Lighting", base: 2400, cls: "slow", season: 0.15, seasonLabel: "Festive travel & power backup" },
-    { code: "LGT-06", name: "Torch — Standard", biz: "Lighting", base: 3600, cls: "best", season: 0.12, seasonLabel: "Festive travel & power backup" },
-    { code: "LGT-07", name: "Emergency Lantern", biz: "Lighting", base: 1100, cls: "slow", season: 0.10, seasonLabel: "Festive travel & power backup" },
-    { code: "LGT-08", name: "Decorative String Lights", biz: "Lighting", base: 2200, cls: "slow", season: 0.45, seasonLabel: "Diwali falls earlier this year", flag: { dir: "lo", reason: "Festive shift", tip: "Diwali falls earlier this year — zonal forecast doesn't reflect it yet.", mag: [0.25, 0.35] } },
-    { code: "LGT-09", name: "LED Bulb 9W — Festive Pack", biz: "Lighting", base: 900, cls: "new", season: 0.60, seasonLabel: "Diwali-timed launch", comparable: "LED Bulb 9W (prior year festive pack)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.50, 2.50] } },
-    { code: "LGT-10", name: "Smart LED Bulb (WiFi)", biz: "Lighting", base: 450, cls: "new", season: 0.05, seasonLabel: "No strong seasonal pull", comparable: "LED Bulb 12W (closest price tier)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.00, 1.80] } },
-    { code: "LGT-11", name: "Ceiling Fan Light Kit", biz: "Lighting", base: 1400, cls: "non", season: 0.00, seasonLabel: "No seasonal pull" },
-    { code: "LGT-12", name: "Solar Garden Light", biz: "Lighting", base: 700, cls: "new", season: 0.18, seasonLabel: "Outdoor festive decor", comparable: "Decorative String Lights (launch-year curve)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.20, 2.00] } },
-    { code: "OTH-01", name: "Wire & Cable — 1.5mm", biz: "Others", base: 3200, cls: "best", season: 0.00, seasonLabel: "No seasonal pull" },
-    { code: "OTH-02", name: "Extension Board (4-socket)", biz: "Others", base: 2100, cls: "slow", season: 0.05, seasonLabel: "Festive lighting installs", flag: { dir: "lo", reason: "Zone bias", tip: "Zone historically under-forecasts this SKU — bias correction applied.", mag: [0.20, 0.30] } },
-    { code: "OTH-03", name: "Electric Iron", biz: "Others", base: 1600, cls: "slow", season: -0.05, seasonLabel: "Post-monsoon lull" },
-    { code: "OTH-04", name: "Immersion Rod", biz: "Others", base: 1300, cls: "slow", season: 0.22, seasonLabel: "Winter onset" }
+    { code: "BAT-01", name: "AA Alkaline (4-pack)", biz: "Batteries", division: "Batteries", base: 42000, cls: "best", season: 0.08, seasonLabel: "Festive gifting & torch demand",
+      products: [
+        { code: "BAT-01-B4", name: "AA Alkaline — Blister (4-pack)" },
+        { code: "BAT-01-S10", name: "AA Alkaline — Shrink (10-pack)" },
+        { code: "BAT-01-CMB", name: "AA Alkaline — Combo with Torch" }
+      ] },
+    { code: "BAT-02", name: "AAA Alkaline (4-pack)", biz: "Batteries", division: "Batteries", base: 31000, cls: "best", season: 0.06, seasonLabel: "Festive gifting & torch demand" },
+    { code: "BAT-03", name: "9V Battery", biz: "Batteries", division: "Batteries", base: 6200, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick", flag: { dir: "hi", reason: "Zone bias", tip: "Zone historically over-forecasts this SKU — bias adjustment applied.", mag: [0.40, 0.60] } },
+    { code: "BAT-04", name: "AA Carbon Zinc (2-pack)", biz: "Batteries", division: "Batteries", base: 18000, cls: "slow", season: 0.04, seasonLabel: "Minor festive uptick",
+      products: [
+        { code: "BAT-04-B2", name: "AA Carbon Zinc — Blister (2-pack)" },
+        { code: "BAT-04-S10", name: "AA Carbon Zinc — Shrink (10-pack)" }
+      ] },
+    { code: "BAT-05", name: "AAA Carbon Zinc (2-pack)", biz: "Batteries", division: "Batteries", base: 15500, cls: "slow", season: 0.03, seasonLabel: "Minor festive uptick" },
+    { code: "BAT-06", name: "C-Cell Battery", biz: "Batteries", division: "Batteries", base: 4100, cls: "non", season: 0.02, seasonLabel: "Declining format, largely flat" },
+    { code: "BAT-07", name: "D-Cell Battery", biz: "Batteries", division: "Batteries", base: 5300, cls: "slow", season: 0.05, seasonLabel: "Festive travel & power-cut demand", flag: { dir: "hi", reason: "Distributor returns", tip: "High distributor returns last cycle not yet reflected in the zonal number.", mag: [0.30, 0.50] } },
+    { code: "BAT-08", name: "Rechargeable AA (2-pack)", biz: "Batteries", division: "Batteries", base: 3800, cls: "slow", season: 0.02, seasonLabel: "No strong seasonal pull" },
+    { code: "LGT-01", name: "LED Bulb 9W", biz: "Lighting", division: "Lighting", base: 5200, cls: "best", season: 0.25, seasonLabel: "Diwali lighting demand",
+      products: [
+        { code: "LGT-01-CDL-B22", name: "LED Bulb 9W — Cool Day Light, B22" },
+        { code: "LGT-01-WW-B22", name: "LED Bulb 9W — Warm White, B22" },
+        { code: "LGT-01-CDL-E27", name: "LED Bulb 9W — Cool Day Light, E27" },
+        { code: "LGT-01-WW-E27", name: "LED Bulb 9W — Warm White, E27" }
+      ] },
+    { code: "LGT-02", name: "LED Bulb 12W", biz: "Lighting", division: "Lighting", base: 3100, cls: "slow", season: 0.22, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-03", name: "LED Tube Light 20W", biz: "Lighting", division: "Lighting", base: 2600, cls: "slow", season: 0.12, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-04", name: "LED Batten 36W", biz: "Lighting", division: "Lighting", base: 1800, cls: "slow", season: 0.10, seasonLabel: "Diwali lighting demand" },
+    { code: "LGT-05", name: "Torch — Rechargeable", biz: "Lighting", division: "Flashlights", base: 2400, cls: "slow", season: 0.15, seasonLabel: "Festive travel & power backup" },
+    { code: "LGT-06", name: "Torch — Standard", biz: "Lighting", division: "Flashlights", base: 3600, cls: "best", season: 0.12, seasonLabel: "Festive travel & power backup",
+      products: [
+        { code: "LGT-06-2C", name: "Torch Standard — 2-Cell" },
+        { code: "LGT-06-3C", name: "Torch Standard — 3-Cell" },
+        { code: "LGT-06-RG", name: "Torch Standard — Rubber Grip" }
+      ] },
+    { code: "LGT-07", name: "Emergency Lantern", biz: "Lighting", division: "Flashlights", base: 1100, cls: "slow", season: 0.10, seasonLabel: "Festive travel & power backup" },
+    { code: "LGT-08", name: "Decorative String Lights", biz: "Lighting", division: "Lighting", base: 2200, cls: "slow", season: 0.45, seasonLabel: "Diwali falls earlier this year", flag: { dir: "lo", reason: "Festive shift", tip: "Diwali falls earlier this year — zonal forecast doesn't reflect it yet.", mag: [0.25, 0.35] },
+      products: [
+        { code: "LGT-08-WW20", name: "String Lights — Warm White, 20m" },
+        { code: "LGT-08-MC20", name: "String Lights — Multicolor, 20m" },
+        { code: "LGT-08-WW10", name: "String Lights — Warm White, 10m" }
+      ] },
+    { code: "LGT-09", name: "LED Bulb 9W — Festive Pack", biz: "Lighting", division: "Lighting", base: 900, cls: "new", season: 0.60, seasonLabel: "Diwali-timed launch", comparable: "LED Bulb 9W (prior year festive pack)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.50, 2.50] } },
+    { code: "LGT-10", name: "Smart LED Bulb (WiFi)", biz: "Lighting", division: "Lighting", base: 450, cls: "new", season: 0.05, seasonLabel: "No strong seasonal pull", comparable: "LED Bulb 12W (closest price tier)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.00, 1.80] } },
+    { code: "LGT-11", name: "Ceiling Fan Light Kit", biz: "Lighting", division: "Lighting", base: 1400, cls: "non", season: 0.00, seasonLabel: "No seasonal pull" },
+    { code: "LGT-12", name: "Solar Garden Light", biz: "Lighting", division: "Lighting", base: 700, cls: "new", season: 0.18, seasonLabel: "Outdoor festive decor", comparable: "Decorative String Lights (launch-year curve)", flag: { dir: "hi", reason: "New launch", tip: "Launched recently — no sell-through history yet; zonal estimate runs high.", mag: [1.20, 2.00] } },
+    { code: "OTH-01", name: "Wire & Cable — 1.5mm", biz: "Others", division: null, base: 3200, cls: "best", season: 0.00, seasonLabel: "No seasonal pull" },
+    { code: "OTH-02", name: "Extension Board (4-socket)", biz: "Others", division: null, base: 2100, cls: "slow", season: 0.05, seasonLabel: "Festive lighting installs", flag: { dir: "lo", reason: "Zone bias", tip: "Zone historically under-forecasts this SKU — bias correction applied.", mag: [0.20, 0.30] } },
+    { code: "OTH-03", name: "Electric Iron", biz: "Others", division: null, base: 1600, cls: "slow", season: -0.05, seasonLabel: "Post-monsoon lull" },
+    { code: "OTH-04", name: "Immersion Rod", biz: "Others", division: null, base: 1300, cls: "slow", season: 0.22, seasonLabel: "Winter onset" }
   ];
   var CLS_LABEL = { new: "New launch", best: "Best seller", slow: "Slow mover", non: "Non-mover" };
+
+  /* ---------------- Region / Zone / Depot catalog (Planning tab only, preview) ---------------- */
+  var DEPOT_DATA = [
+    { region: "East", zone: "North East 1", depot: "Guwahati" },
+    { region: "East", zone: "North East 2", depot: "Guwahati" },
+    { region: "East", zone: "Jharkhand", depot: "Ranchi" },
+    { region: "East", zone: "North Bihar", depot: "Muzaffarpur" },
+    { region: "East", zone: "South Bihar", depot: "Patna" },
+    { region: "East", zone: "North Bengal", depot: "Siliguri" },
+    { region: "East", zone: "South Bengal", depot: "Dhulagarh" },
+    { region: "East", zone: "Kolkata Metro", depot: "Dhulagarh" },
+    { region: "East", zone: "Orissa", depot: "Cuttack" },
+    { region: "North", zone: "West UP", depot: "Ghaziabad" },
+    { region: "North", zone: "East UP1", depot: "Varanasi & Lucknow" },
+    { region: "North", zone: "East UP2", depot: "Lucknow" },
+    { region: "North", zone: "Haryana & HP", depot: "Rohtak & Johal" },
+    { region: "North", zone: "Rajasthan", depot: "Jaipur" },
+    { region: "North", zone: "Punjab & J&K", depot: "Johal" },
+    { region: "North", zone: "Delhi", depot: "Ghaziabad" },
+    { region: "North", zone: "Uttarakhand", depot: "Dehradun" },
+    { region: "North", zone: "Central UP", depot: "Kanpur" },
+    { region: "South", zone: "Chennai Metro", depot: "Chennai" },
+    { region: "South", zone: "North Tamil Nadu", depot: "Chennai" },
+    { region: "South", zone: "South Tamil Nadu", depot: "Madurai" },
+    { region: "South", zone: "Kerala", depot: "Kochi" },
+    { region: "South", zone: "Bangalore Metro", depot: "Bangalore" },
+    { region: "South", zone: "North Karnataka", depot: "Bangalore" },
+    { region: "South", zone: "Telangana", depot: "Hyderabad" },
+    { region: "South", zone: "Coastal Andhra", depot: "Hyderabad" },
+    { region: "South", zone: "Rayalaseema", depot: "Hyderabad" },
+    { region: "West", zone: "Mumbai Metro", depot: "Mumbai" },
+    { region: "West", zone: "Maharashtra West", depot: "Pune" },
+    { region: "West", zone: "Vidarbha", depot: "Nagpur" },
+    { region: "West", zone: "North Maharashtra", depot: "Pune" },
+    { region: "West", zone: "Gujarat North", depot: "Ahmedabad" },
+    { region: "West", zone: "Gujarat South", depot: "Ahmedabad" },
+    { region: "West", zone: "Madhya Pradesh", depot: "Indore" },
+    { region: "West", zone: "Chhattisgarh", depot: "Indore" },
+    { region: "West", zone: "Goa", depot: "Mumbai" }
+  ];
+
+  /* ---------------- SKU -> Product expansion (Planning tab only, preview) ---------------- */
+  function productsFor(sku) { return sku.products || [{ code: sku.code, name: sku.name }]; }
+  function productWeights(zone, sku, prods) {
+    if (prods.length === 1) return [1];
+    var raw = prods.map(function (p, i) { return 0.4 + rand("pw|" + zone + "|" + sku.code + "|" + i); });
+    var sum = raw.reduce(function (a, b) { return a + b; }, 0);
+    return raw.map(function (v) { return v / sum; });
+  }
+  function divisionSkus() { return SKUS.filter(function (s) { return !!s.division; }); }
+  function productRows(zoneName, division, search) {
+    var out = [];
+    if (!zoneName) return out;
+    divisionSkus().forEach(function (sku) {
+      if (division !== "All" && sku.division !== division) return;
+      var row = buildRow(zoneName, sku);
+      var prods = productsFor(sku);
+      var weights = productWeights(zoneName, sku, prods);
+      prods.forEach(function (p, i) {
+        var w = weights[i];
+        out.push({
+          skuCode: sku.code, skuName: sku.name, code: p.code, name: p.name,
+          division: sku.division, cls: sku.cls,
+          er: Math.max(1, Math.round(row.er * w)),
+          zonal: Math.max(1, Math.round(row.zonal * w)),
+          devPct: row.devPct, flagged: row.flagged, reason: row.reason, tip: row.tip
+        });
+      });
+    });
+    if (search && search.trim()) {
+      var q = search.trim().toLowerCase();
+      out = out.filter(function (r) {
+        return r.name.toLowerCase().indexOf(q) >= 0 || r.code.toLowerCase().indexOf(q) >= 0 ||
+               r.skuName.toLowerCase().indexOf(q) >= 0 || r.skuCode.toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    return out;
+  }
 
   function zoneFactor(zone) { return 0.7 + rand("zf|" + zone) * 0.8; }
 
@@ -477,7 +676,7 @@
 
   function buildRow(zone, sku) {
     var zf = zoneFactor(zone);
-    var row = { code: sku.code, name: sku.name, biz: sku.biz, cls: sku.cls, season: sku.season, seasonLabel: sku.seasonLabel, comparable: sku.comparable || null };
+    var row = { code: sku.code, name: sku.name, biz: sku.biz, division: sku.division, cls: sku.cls, season: sku.season, seasonLabel: sku.seasonLabel, comparable: sku.comparable || null };
 
     if (sku.cls === "new") {
       var launchJitter = 0.85 + rand("er|" + zone + "|" + sku.code) * 0.30;
@@ -565,7 +764,7 @@
     }
 
     return {
-      code: sku.code, name: sku.name, biz: sku.biz, cls: sku.cls, flagged: flagged,
+      code: sku.code, name: sku.name, biz: sku.biz, division: sku.division, cls: sku.cls, flagged: flagged,
       reason: sku.flag ? sku.flag.reason : null, tip: sku.flag ? sku.flag.tip : null,
       er: er, zonal: zonal, approved: approved, actual: actual
     };
@@ -600,7 +799,7 @@
     var currentInv = Math.max(0, Math.round(targetInv * invMult));
     var doi = dailyRate > 0 ? Math.round(currentInv / dailyRate) : 0;
     var excess = Math.max(0, Math.round(currentInv - targetInv));
-    return { code: r.code, name: r.name, biz: r.biz, cls: r.cls, recentSales: recentSales, currentInv: currentInv, doi: doi, excess: excess };
+    return { code: r.code, name: r.name, biz: r.biz, division: r.division, cls: r.cls, recentSales: recentSales, currentInv: currentInv, doi: doi, excess: excess };
   }
 
   function inventoryRows(zone) { return zoneRows(zone).map(function (r) { return buildInventoryRow(zone, r); }); }
@@ -620,51 +819,119 @@
   var summaryBiz = "All";
 
   function fmt(n) { return n.toLocaleString("en-IN"); }
-
-  /* ---------------- Planning view ---------------- */
-  var zoneSelect = document.getElementById("zoneSelect");
-  var zoneSelect2 = document.getElementById("zoneSelect2");
-  [zoneSelect, zoneSelect2].forEach(function (sel) {
-    for (var z = 1; z <= ZONES; z++) {
-      var o = document.createElement("option"); o.value = z; o.textContent = "Zone " + z; sel.appendChild(o);
-    }
-    sel.value = state.zone;
-  });
-  function onZoneChange() { state.zone = parseInt(this.value, 10); syncFilterControls(); renderPlanning(); }
-  zoneSelect.addEventListener("change", onZoneChange);
-  zoneSelect2.addEventListener("change", onZoneChange);
-
-  var bizSelect = document.getElementById("bizSelect");
-  var bizSelect2 = document.getElementById("bizSelect2");
-  function onBizChange() { state.biz = this.value; syncFilterControls(); renderPlanning(); }
-  bizSelect.addEventListener("change", onBizChange);
-  bizSelect2.addEventListener("change", onBizChange);
-
-  function syncFilterControls() {
-    [zoneSelect, zoneSelect2].forEach(function (sel) { sel.value = state.zone; });
-    [bizSelect, bizSelect2].forEach(function (sel) { sel.value = state.biz; });
+  function fmtShort(n) {
+    if (n >= 10000000) return (n / 10000000).toFixed(1) + "Cr";
+    if (n >= 100000) return (n / 100000).toFixed(1) + "L";
+    if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+    return String(n);
   }
 
+  /* ---------------- Planning view (product-level, region/zone/depot filters) ---------------- */
+  var pState = { zoneName: null, division: "All", search: "" };
+  var pUploaded = {};       // key "zoneName" -> true once a CSV has been uploaded for that zone
+  var pDecisions = {};      // key "zoneName|productCode" -> "approved" | "rejected"
+  var pFinalOverride = {};  // key "zoneName|productCode" -> manually edited final forecast number
+  var pUploadOverride = {}; // key "zoneName|productCode" -> {months,total} from an actually-uploaded file
+
+  function uniq(arr) {
+    var seen = {}, out = [];
+    arr.forEach(function (v) { if (!Object.prototype.hasOwnProperty.call(seen, v)) { seen[v] = 1; out.push(v); } });
+    return out;
+  }
+  function fillSel(sel, values, allLabel, includeAll) {
+    sel.innerHTML = "";
+    if (includeAll !== false) {
+      var o0 = document.createElement("option"); o0.value = ""; o0.textContent = allLabel; sel.appendChild(o0);
+    }
+    values.forEach(function (v) { var o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+  }
+
+  var pRegionSel = document.getElementById("pRegion");
+  var pZoneSel = document.getElementById("pZone");
+  var pDepotSel = document.getElementById("pDepot");
+  var pDivisionSel = document.getElementById("pDivision");
+  var pSearchInput = document.getElementById("pSearch");
+
+  var pRegions = uniq(DEPOT_DATA.map(function (d) { return d.region; }));
+  fillSel(pRegionSel, pRegions, "All Regions");
+
+  // Zone always holds a concrete value — no "All Zones" option — so the grid can never
+  // land on an empty state. Region and Depot are narrowing/reset controls only; Depot
+  // keeps "All Depots" since it's still a meaningful reset (widen back to the region),
+  // while Zone never needs an "unset" state once every path below always picks one.
+  // source: "region" | "zone" | "depot" — which control the user just changed.
+  function rebuildRegionZoneDepot(source) {
+    var region = pRegionSel.value;
+    var scoped = DEPOT_DATA.filter(function (d) { return !region || d.region === region; });
+
+    if (source === "region") {
+      var zoneValues = scoped.map(function (d) { return d.zone; });
+      var keepZone = pZoneSel.value;
+      fillSel(pZoneSel, zoneValues, "All Zones", false);
+      pZoneSel.value = (keepZone && zoneValues.indexOf(keepZone) >= 0) ? keepZone : zoneValues[0];
+      var rMatch = scoped.filter(function (d) { return d.zone === pZoneSel.value; })[0];
+      fillSel(pDepotSel, rMatch ? [rMatch.depot] : [], "All Depots");
+      if (rMatch) pDepotSel.value = rMatch.depot;
+      pState.zoneName = pZoneSel.value;
+      renderPlanningOnly();
+      return;
+    }
+
+    if (source === "depot") {
+      var depotVal = pDepotSel.value;
+      if (!depotVal) {
+        // "All Depots" — widen the depot list back out, leave the current (still-valid) zone as is
+        fillSel(pDepotSel, uniq(scoped.map(function (d) { return d.depot; })), "All Depots");
+        renderPlanningOnly();
+        return;
+      }
+      var zoneScoped = scoped.filter(function (d) { return d.depot === depotVal; });
+      var zoneValues2 = zoneScoped.map(function (d) { return d.zone; });
+      fillSel(pZoneSel, zoneValues2, "All Zones", false);
+      pZoneSel.value = zoneValues2[0]; // auto-select — a depot can serve several zones, so default to the first
+      pState.zoneName = pZoneSel.value;
+      renderPlanningOnly();
+      return;
+    }
+
+    // source === "zone" (Zone always has a concrete value now)
+    var zoneVal = pZoneSel.value;
+    var match = scoped.filter(function (d) { return d.zone === zoneVal; })[0];
+    fillSel(pDepotSel, match ? [match.depot] : [], "All Depots");
+    if (match) pDepotSel.value = match.depot;
+    pState.zoneName = zoneVal;
+    renderPlanningOnly();
+  }
+
+  pRegionSel.addEventListener("change", function () { rebuildRegionZoneDepot("region"); });
+  pZoneSel.addEventListener("change", function () { rebuildRegionZoneDepot("zone"); });
+  pDepotSel.addEventListener("change", function () { rebuildRegionZoneDepot("depot"); });
+
+  pDivisionSel.addEventListener("change", function () { pState.division = this.value; renderPlanningOnly(); });
+
+  var pSearchDebounce;
+  pSearchInput.addEventListener("input", function () {
+    pState.search = this.value;
+    clearTimeout(pSearchDebounce);
+    pSearchDebounce = setTimeout(renderPlanningOnly, 120);
+  });
+
   function currentRows() {
-    var rows = zoneRows(state.zone);
-    if (state.biz !== "All") rows = rows.filter(function (r) { return r.biz === state.biz; });
-    return rows;
+    return productRows(pState.zoneName, pState.division, pState.search);
   }
 
   function renderSummaryBanner() {
     var el = document.getElementById("summaryBanner");
+    if (!pState.zoneName) { el.innerHTML = '<div class="banner-awaited"><div class="msg"><b>Pick a zone</b> (or a depot) to see its forecast.</div></div>'; return; }
     var rows = currentRows();
-    var scope = state.biz === "All" ? "all businesses" : state.biz;
+    var scope = pState.division === "All" ? "all divisions" : pState.division;
 
-    if (!state.uploaded[state.zone]) {
+    if (!pUploaded[pState.zoneName]) {
       el.innerHTML =
-        '<div class="banner-awaited">' +
-          '<div class="msg"><b>Zonal forecast awaited</b> — upload Zone ' + state.zone + '\'s forecast to see the deviation against EasyReplenish\'s check.</div>' +
-          '<div class="csv-controls">' +
-            '<button type="button" class="btn small ghost" id="btnSampleCsv">Download sample CSV</button>' +
-            '<label class="btn small primary" for="csvUpload">Upload zonal forecast (CSV)</label>' +
-            '<input type="file" id="csvUpload" accept=".csv">' +
-          '</div>' +
+        '<div class="csv-controls-standalone">' +
+          '<button type="button" class="btn small ghost" id="btnSampleCsv">Download Sample Zonal Forecast</button>' +
+          '<label class="btn small ghost" for="csvUpload">Upload Sample Zonal Forecast</label>' +
+          '<input type="file" id="csvUpload" accept=".csv">' +
         '</div>';
       wireCsvControls();
       return;
@@ -677,12 +944,12 @@
       var erSum = list.reduce(function (a, r) { return a + r.er; }, 0);
       var zSum = list.reduce(function (a, r) { return a + r.zonal; }, 0);
       var pct = erSum > 0 ? Math.round((Math.abs(zSum - erSum) / erSum) * 100) : 0;
-      var approved = list.filter(function (r) { return state.decisions[state.zone + "|" + r.code] === "approved"; }).length;
-      var rejected = list.filter(function (r) { return state.decisions[state.zone + "|" + r.code] === "rejected"; }).length;
+      var approved = list.filter(function (r) { return pDecisions[pState.zoneName + "|" + r.code] === "approved"; }).length;
+      var rejected = list.filter(function (r) { return pDecisions[pState.zoneName + "|" + r.code] === "rejected"; }).length;
       var awaiting = list.length - approved - rejected;
       return '<div class="summary-card ' + cls + '">' +
         '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
-        '<div class="sc-count">' + list.length + '<span>SKUs</span></div>' +
+        '<div class="sc-count">' + list.length + '<span>products</span></div>' +
         '<div class="sc-dev">' + fmt(Math.abs(zSum - erSum)) + ' units total deviation (' + pct + '%)</div>' +
         '<div class="status-row">' +
           '<div class="st approved"><span class="n">' + approved + '</span><span class="l">Approved</span></div>' +
@@ -697,19 +964,19 @@
         bucketHtml("lower", "Zonal forecast lower than EasyReplenish", lower) +
         bucketHtml("higher", "Zonal forecast higher than EasyReplenish", higher) +
       '</div>' +
-      '<div class="csv-hint">Zone ' + state.zone + ', ' + scope + ' — forecast uploaded. <button type="button" class="btn small ghost" id="btnReupload" style="margin-left:8px;">Re-upload CSV</button></div>';
+      '<div class="csv-hint">' + pState.zoneName + ', ' + scope + ' — forecast uploaded. <button type="button" class="btn small ghost" id="btnReupload" style="margin-left:8px;">Re-upload CSV</button></div>';
     document.getElementById("btnReupload").addEventListener("click", function () {
-      state.uploaded[state.zone] = false;
-      renderPlanning();
+      pUploaded[pState.zoneName] = false;
+      renderPlanningOnly();
     });
   }
 
-  function sampleCsvFor(zone, biz) {
-    var rows = zoneRows(zone);
-    if (biz !== "All") rows = rows.filter(function (r) { return r.biz === biz; });
-    var lines = ["sku_code,sku_name,month1_units,month2_units,month3_units"];
+  function sampleCsvFor(zoneName, division) {
+    var rows = productRows(zoneName, division, "");
+    var lines = ["product_code,product_name,sku_code,month1_units,month2_units,month3_units"];
     rows.forEach(function (r) {
-      lines.push([r.code, '"' + r.name + '"', r.zonalMonths[0], r.zonalMonths[1], r.zonalMonths[2]].join(","));
+      var months = splitMonths(r.zonal, "csvm|" + zoneName + "|" + r.code);
+      lines.push([r.code, '"' + r.name + '"', r.skuCode, months[0], months[1], months[2]].join(","));
     });
     return lines.join("\n");
   }
@@ -719,24 +986,22 @@
     var out = {};
     for (var i = 1; i < lines.length; i++) {
       var parts = lines[i].match(/(".*?"|[^,]+)/g);
-      if (!parts || parts.length < 5) continue;
+      if (!parts || parts.length < 6) continue;
       var code = parts[0].trim();
-      var m1 = parseInt(parts[2], 10) || 0, m2 = parseInt(parts[3], 10) || 0, m3 = parseInt(parts[4], 10) || 0;
+      var m1 = parseInt(parts[3], 10) || 0, m2 = parseInt(parts[4], 10) || 0, m3 = parseInt(parts[5], 10) || 0;
       out[code] = { months: [m1, m2, m3], total: m1 + m2 + m3 };
     }
     return out;
   }
 
-  var uploadOverride = {}; // "zone|code" -> {months,total} from an actually-uploaded file
-
   function wireCsvControls() {
     var btnSample = document.getElementById("btnSampleCsv");
     if (btnSample) btnSample.addEventListener("click", function () {
-      var csv = sampleCsvFor(state.zone, state.biz);
+      var csv = sampleCsvFor(pState.zoneName, pState.division);
       var blob = new Blob([csv], { type: "text/csv" });
       var a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "zonal_forecast_zone" + state.zone + "_" + state.biz.toLowerCase() + ".csv";
+      a.download = "zonal_forecast_" + pState.zoneName.replace(/[^a-z0-9]+/gi, "_") + "_" + pState.division.toLowerCase() + ".csv";
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     });
     var input = document.getElementById("csvUpload");
@@ -746,27 +1011,28 @@
       var reader = new FileReader();
       reader.onload = function () {
         var parsed = parseCsv(String(reader.result));
-        Object.keys(parsed).forEach(function (code) { uploadOverride[state.zone + "|" + code] = parsed[code]; });
-        state.uploaded[state.zone] = true;
-        renderPlanning();
+        Object.keys(parsed).forEach(function (code) { pUploadOverride[pState.zoneName + "|" + code] = parsed[code]; });
+        pUploaded[pState.zoneName] = true;
+        renderPlanningOnly();
       };
       reader.readAsText(file);
     });
   }
 
   function computeFinal(code, zTotal, erTotal, uploaded, decision) {
-    var key = state.zone + "|" + code;
-    if (Object.prototype.hasOwnProperty.call(state.finalOverride, key)) return state.finalOverride[key];
+    var key = pState.zoneName + "|" + code;
+    if (Object.prototype.hasOwnProperty.call(pFinalOverride, key)) return pFinalOverride[key];
     if (!uploaded) return null;
     return decision === "approved" ? erTotal : zTotal;
   }
 
   function renderGrid() {
     var list = document.getElementById("gridList");
+    if (!pState.zoneName) { list.innerHTML = ""; return; }
     var rows = currentRows();
-    var uploaded = !!state.uploaded[state.zone];
+    var uploaded = !!pUploaded[pState.zoneName];
     list.innerHTML = rows.map(function (r) {
-      var override = uploadOverride[state.zone + "|" + r.code];
+      var override = pUploadOverride[pState.zoneName + "|" + r.code];
       var zTotal = override ? override.total : r.zonal;
       var devPct = uploaded ? Math.round(((zTotal - r.er) / r.er) * 100) : r.devPct;
       var flagged = uploaded ? Math.abs(devPct) >= 15 : false;
@@ -783,7 +1049,7 @@
         ? '<span class="reason-tag" tabindex="0" data-tip="' + r.tip + '">' + r.reason + '</span>'
         : '<span class="reason-none">—</span>';
 
-      var decision = state.decisions[state.zone + "|" + r.code];
+      var decision = pDecisions[pState.zoneName + "|" + r.code];
       var statusHtml;
       if (!uploaded) {
         statusHtml = '';
@@ -807,8 +1073,9 @@
         : '<input type="text" class="final-input tabular" disabled placeholder="—">';
 
       return '<div class="grid-row">' +
-        '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
-        '<div class="fc-cell"><div class="fc-total">' + fmt(r.er) + '</div></div>' +
+        '<div class="cell-plain">' + r.skuName + '</div>' +
+        '<div class="cell-plain">' + r.name + '</div>' +
+        '<div class="fc-cell"><div class="fc-total-plain">' + fmt(r.er) + '</div></div>' +
         '<div class="fc-cell zonal">' + zonalCellHtml + '</div>' +
         '<div>' + finalHtml + '</div>' +
         '<div>' + reasonHtml + '</div>' +
@@ -818,38 +1085,63 @@
 
     list.querySelectorAll("[data-approve]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var key = state.zone + "|" + btn.getAttribute("data-approve");
-        state.decisions[key] = "approved";
-        delete state.finalOverride[key];
-        renderPlanning();
+        var key = pState.zoneName + "|" + btn.getAttribute("data-approve");
+        pDecisions[key] = "approved";
+        delete pFinalOverride[key];
+        renderPlanningOnly();
       });
     });
     list.querySelectorAll("[data-reject]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var key = state.zone + "|" + btn.getAttribute("data-reject");
-        state.decisions[key] = "rejected";
-        delete state.finalOverride[key];
-        renderPlanning();
+        var key = pState.zoneName + "|" + btn.getAttribute("data-reject");
+        pDecisions[key] = "rejected";
+        delete pFinalOverride[key];
+        renderPlanningOnly();
       });
     });
     list.querySelectorAll("[data-change]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var key = state.zone + "|" + btn.getAttribute("data-change");
-        delete state.decisions[key];
-        delete state.finalOverride[key];
-        renderPlanning();
+        var key = pState.zoneName + "|" + btn.getAttribute("data-change");
+        delete pDecisions[key];
+        delete pFinalOverride[key];
+        renderPlanningOnly();
       });
     });
     list.querySelectorAll("[data-final]").forEach(function (inp) {
       inp.addEventListener("focus", function () { this.select(); });
       inp.addEventListener("change", function () {
         var raw = this.value.replace(/[^0-9]/g, "");
-        var key = state.zone + "|" + this.getAttribute("data-final");
-        state.finalOverride[key] = raw ? parseInt(raw, 10) : 0;
-        renderPlanning();
+        var key = pState.zoneName + "|" + this.getAttribute("data-final");
+        pFinalOverride[key] = raw ? parseInt(raw, 10) : 0;
+        renderPlanningOnly();
       });
     });
   }
+
+  function renderPlanningOnly() {
+    renderSummaryBanner();
+    renderGrid();
+  }
+
+  /* ---------------- System Forecast tab's own Zone/Business filter (unchanged, not yet migrated) ---------------- */
+  var zoneSelect2 = document.getElementById("zoneSelect2");
+  for (var zi = 1; zi <= ZONES; zi++) {
+    var zOpt = document.createElement("option"); zOpt.value = zi; zOpt.textContent = "Zone " + zi; zoneSelect2.appendChild(zOpt);
+  }
+  zoneSelect2.value = state.zone;
+  zoneSelect2.addEventListener("change", function () { state.zone = parseInt(this.value, 10); renderSystemForecast(); });
+
+  var bizSelect2 = document.getElementById("bizSelect2");
+  bizSelect2.addEventListener("change", function () { state.biz = this.value; renderSystemForecast(); });
+
+  var sfSearchTerm = "";
+  var sfSearchInput = document.getElementById("sfSearch");
+  var sfSearchDebounce;
+  sfSearchInput.addEventListener("input", function () {
+    sfSearchTerm = this.value;
+    clearTimeout(sfSearchDebounce);
+    sfSearchDebounce = setTimeout(renderSystemForecast, 120);
+  });
 
   function renderPlanning() {
     renderSummaryBanner();
@@ -860,12 +1152,64 @@
     renderBusiness();
   }
 
-  /* ---------------- System Forecast view ---------------- */
+  /* ---------------- System Forecast view (product-level) ---------------- */
+  function systemForecastProductRows(zone, biz, search) {
+    var out = [];
+    SKUS.forEach(function (sku) {
+      if (biz !== "All" && sku.biz !== biz) return;
+      var row = buildRow(zone, sku);
+      var prods = productsFor(sku);
+      var weights = productWeights(zone, sku, prods);
+      var hasHistory = row.l30 !== null;
+      prods.forEach(function (p, i) {
+        var w = weights[i];
+        out.push({
+          skuCode: sku.code, skuName: sku.name, code: p.code, name: p.name,
+          cls: row.cls, season: row.season, trendTag: row.trendTag,
+          l30: hasHistory ? Math.max(1, Math.round(row.l30 * w)) : null,
+          p30: hasHistory ? Math.max(1, Math.round(row.p30 * w)) : null,
+          pp30: hasHistory ? Math.max(1, Math.round(row.pp30 * w)) : null,
+          er: Math.max(1, Math.round(row.er * w))
+        });
+      });
+    });
+    if (search && search.trim()) {
+      var q = search.trim().toLowerCase();
+      out = out.filter(function (r) {
+        return r.name.toLowerCase().indexOf(q) >= 0 || r.code.toLowerCase().indexOf(q) >= 0 ||
+               r.skuName.toLowerCase().indexOf(q) >= 0 || r.skuCode.toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    return out;
+  }
+
+  function sfCsvFor(zone, biz, search) {
+    var rows = systemForecastProductRows(zone, biz, search);
+    var lines = ["sku_code,sku_name,product_code,product_name,sales_may_2026,sales_jun_2026,sales_jul_2026,seasonality_pct,classification,forecast_aug_oct_2026"];
+    rows.forEach(function (r) {
+      lines.push([
+        r.skuCode, '"' + r.skuName + '"', r.code, '"' + r.name + '"',
+        r.pp30 === null ? "" : r.pp30, r.p30 === null ? "" : r.p30, r.l30 === null ? "" : r.l30,
+        Math.round(r.season * 100), CLS_LABEL[r.cls], r.er
+      ].join(","));
+    });
+    return lines.join("\n");
+  }
+
+  var btnDownloadSfCsv = document.getElementById("btnDownloadSfCsv");
+  btnDownloadSfCsv.addEventListener("click", function () {
+    var csv = sfCsvFor(state.zone, state.biz, sfSearchTerm);
+    var blob = new Blob([csv], { type: "text/csv" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "system_forecast_zone" + state.zone + "_" + state.biz.toLowerCase() + ".csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
   function renderSystemForecast() {
     var list = document.getElementById("sfList");
     if (!list) return;
-    var rows = zoneRows(state.zone);
-    if (state.biz !== "All") rows = rows.filter(function (r) { return r.biz === state.biz; });
+    var rows = systemForecastProductRows(state.zone, state.biz, sfSearchTerm);
 
     list.innerHTML = rows.map(function (r) {
       var trendCls = r.trendTag === "Increasing" ? "up" : r.trendTag === "Decreasing" ? "down" : r.trendTag === "Constant" ? "flat" : "none";
@@ -874,31 +1218,22 @@
       var seasonStr = (r.season > 0 ? "+" : "") + Math.round(r.season * 100) + "%";
 
       var hasHistory = r.l30 !== null;
-      var sales90Html = hasHistory ? '<div class="sv">' + fmt(r.l30 + r.p30 + r.pp30) + '</div>' : '<div class="sv muted">No history</div>';
-      var l30Html = hasHistory ? '<div class="sv">' + fmt(r.l30) + '</div>' : '<div class="sv muted">No history</div>';
-      var p30Html = hasHistory ? '<div class="sv">' + fmt(r.p30) + '</div>' : '<div class="sv muted">—</div>';
-      var pp30Html = hasHistory ? '<div class="sv">' + fmt(r.pp30) + '</div>' : '<div class="sv muted">—</div>';
+      var recentSalesHtml = hasHistory
+        ? '<div class="rs-col">' +
+            '<div class="rs-row"><span class="rs-m">July 2026</span><span class="rs-v">' + fmt(r.l30) + '</span></div>' +
+            '<div class="rs-row"><span class="rs-m">June 2026</span><span class="rs-v">' + fmt(r.p30) + '</span></div>' +
+            '<div class="rs-row"><span class="rs-m">May 2026</span><span class="rs-v">' + fmt(r.pp30) + '</span></div>' +
+            '<span class="trend-tag ' + trendCls + '">' + trendArrow + ' ' + r.trendTag + '</span>' +
+          '</div>'
+        : '<div class="rs-col"><span class="sv muted">No history</span><span class="trend-tag none">— No history</span></div>';
 
-      return '<div class="sf-card">' +
-        '<div class="sf-head">' +
-          '<div><div class="sku-name">' + r.name + '</div><div class="sku-code">' + r.code + '</div></div>' +
-          '<div class="sf-tags">' +
-            '<span class="cls-tag ' + r.cls + '">' + CLS_LABEL[r.cls] + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="sf-stats">' +
-          '<div class="sf-stat"><span class="sl">Sales (90 days)</span>' + sales90Html + '</div>' +
-          '<div class="sf-recent">' +
-            '<div class="sf-recent-head"><span class="sl">Recent sales — 30-day windows</span><span class="trend-tag ' + trendCls + '">' + trendArrow + ' ' + r.trendTag + '</span></div>' +
-            '<div class="sf-recent-cols">' +
-              '<div class="sf-stat"><span class="sl">Last 30 days</span>' + l30Html + '</div>' +
-              '<div class="sf-stat"><span class="sl">31–60 days ago</span>' + p30Html + '</div>' +
-              '<div class="sf-stat"><span class="sl">61–90 days ago</span>' + pp30Html + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="sf-stat season"><span class="sl">Seasonality</span><div class="sv ' + seasonCls + '">' + seasonStr + '</div></div>' +
-          '<div class="sf-stat final"><span class="sl">3-month forecast</span><div class="sv">' + fmt(r.er) + '</div></div>' +
-        '</div>' +
+      return '<div class="grid-row">' +
+        '<div class="sku-name">' + r.skuName + '</div>' +
+        '<div class="sku-name">' + r.name + '</div>' +
+        '<div>' + recentSalesHtml + '</div>' +
+        '<div class="sv ' + seasonCls + '">' + seasonStr + '</div>' +
+        '<div><span class="cls-tag ' + r.cls + '">' + CLS_LABEL[r.cls] + '</span></div>' +
+        '<div><div class="sv">' + fmt(r.er) + '</div></div>' +
       '</div>';
     }).join("");
   }
@@ -906,11 +1241,10 @@
   /* ---------------- Forecast Accuracy view ---------------- */
   var accuracyBiz = "All";
 
-  function scoreCard(cls, label, acc, excess) {
-    return '<div class="summary-card ' + cls + '">' +
-      '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
-      '<div class="sc-count">' + acc + '<span>% accurate</span></div>' +
-      '<div class="sc-dev">' + fmt(excess) + ' units of excess inventory</div>' +
+  function accRow(label, acc, excess, primary) {
+    return '<div class="ac-row' + (primary ? ' primary' : '') + '">' +
+      '<span class="ac-label">' + label + '</span>' +
+      '<span class="ac-stats"><b class="ac-acc ' + accPillCls(acc) + '">' + acc + '%</b> accurate &nbsp;·&nbsp; <b>' + fmtShort(excess) + '</b> excess</span>' +
     '</div>';
   }
 
@@ -934,18 +1268,15 @@
     '</div>';
   }
 
-  var accuracyToggle = document.getElementById("accuracyBizToggle");
-  accuracyToggle.addEventListener("click", function (e) {
-    var btn = e.target.closest("button[data-biz]");
-    if (!btn) return;
-    accuracyBiz = btn.getAttribute("data-biz");
-    accuracyToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  var accuracyDivisionSelect = document.getElementById("accuracyDivisionSelect");
+  accuracyDivisionSelect.addEventListener("change", function () {
+    accuracyBiz = this.value;
     renderAccuracy();
   });
 
   function accuracyRowsFor(zone) {
-    var rows = histRows(zone);
-    if (accuracyBiz !== "All") rows = rows.filter(function (r) { return r.biz === accuracyBiz; });
+    var rows = histRows(zone).filter(function (r) { return !!r.division; });
+    if (accuracyBiz !== "All") rows = rows.filter(function (r) { return r.division === accuracyBiz; });
     return rows;
   }
 
@@ -967,9 +1298,11 @@
     var approvedExcess = excessUnits(allRows, "approved");
 
     scorecardEl.innerHTML =
-      scoreCard("er", "EasyReplenish forecast, used directly", erAcc, erExcess) +
-      scoreCard("zonal", "Zonal forecast, used directly", zonalAcc, zonalExcess) +
-      scoreCard("approved", "What was actually approved", approvedAcc, approvedExcess);
+      '<div class="summary-card accline">' +
+        accRow("Your approved forecast resulted in", approvedAcc, approvedExcess, true) +
+        accRow("If you had used EasyReplenish's forecast directly", erAcc, erExcess) +
+        accRow("If you had used the zonal manager's forecast directly", zonalAcc, zonalExcess) +
+      '</div>';
 
     if (zonalExcess > 0 && erExcess < zonalExcess) {
       var pct = Math.round(((zonalExcess - erExcess) / zonalExcess) * 100);
@@ -1035,18 +1368,15 @@
     '</div>';
   }
 
-  var businessToggle = document.getElementById("businessBizToggle");
-  businessToggle.addEventListener("click", function (e) {
-    var btn = e.target.closest("button[data-biz]");
-    if (!btn) return;
-    businessBiz = btn.getAttribute("data-biz");
-    businessToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  var businessDivisionSelect = document.getElementById("businessDivisionSelect");
+  businessDivisionSelect.addEventListener("change", function () {
+    businessBiz = this.value;
     renderBusiness();
   });
 
   function businessRowsFor(zone) {
-    var rows = inventoryRows(zone);
-    if (businessBiz !== "All") rows = rows.filter(function (r) { return r.biz === businessBiz; });
+    var rows = inventoryRows(zone).filter(function (r) { return !!r.division; });
+    if (businessBiz !== "All") rows = rows.filter(function (r) { return r.division === businessBiz; });
     return rows;
   }
 
@@ -1070,10 +1400,10 @@
     var excessPct = agg.currentInv > 0 ? Math.round((agg.excess / agg.currentInv) * 100) : 0;
 
     scorecardEl.innerHTML =
-      statCard("Recent sales (30 days)", fmt(agg.recentSales), "units") +
-      statCard("Current inventory", fmt(agg.currentInv), "units") +
+      statCard("Recent sales (30 days)", fmtShort(agg.recentSales), "units") +
+      statCard("Current inventory", fmtShort(agg.currentInv), "units") +
       statCard("Days of inventory", agg.doi, "days") +
-      statCard("Excess inventory", fmt(agg.excess), "units", excessPct + "% of current inventory");
+      statCard("Excess inventory", fmtShort(agg.excess), "units", excessPct + "% of current inventory");
 
     var openZones = zoneListEl._open || {};
     var html = "";
@@ -1084,7 +1414,7 @@
       html += '<div class="zone-row' + (isOpen ? ' open' : '') + '" data-zone="' + zz + '">' +
         '<div class="zone-row-head" data-toggle="' + zz + '">' +
           '<span class="zn">Zone ' + zz + '</span>' +
-          '<span class="zstat">DOI <b>' + zAgg.doi + ' days</b> · Excess <b>' + fmt(zAgg.excess) + '</b> units</span>' +
+          '<span class="zstat">DOI <b>' + zAgg.doi + ' days</b> · Excess <b>' + fmtShort(zAgg.excess) + '</b> units</span>' +
           '<span class="chev">▸</span>' +
         '</div>' +
         '<div class="zone-row-body">' +
@@ -1104,19 +1434,16 @@
   }
 
   /* ---------------- Summary view ---------------- */
-  var summaryToggle = document.getElementById("summaryBizToggle");
-  summaryToggle.addEventListener("click", function (e) {
-    var btn = e.target.closest("button[data-biz]");
-    if (!btn) return;
-    summaryBiz = btn.getAttribute("data-biz");
-    summaryToggle.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  var summaryDivisionSelect = document.getElementById("summaryDivisionSelect");
+  summaryDivisionSelect.addEventListener("change", function () {
+    summaryBiz = this.value;
     renderSummaryTab();
   });
 
-  function zoneStats(zone, biz) {
+  function zoneStats(zone, division) {
     var live = zone === state.zone && !!state.uploaded[zone];
-    var rows = zoneRows(zone);
-    if (biz !== "All") rows = rows.filter(function (r) { return r.biz === biz; });
+    var rows = zoneRows(zone).filter(function (r) { return !!r.division; });
+    if (division !== "All") rows = rows.filter(function (r) { return r.division === division; });
 
     if (live) {
       rows = rows.map(function (r) {
@@ -1151,21 +1478,23 @@
     return { live: live, total: rows.length, lower: lower, higher: higher, lowerDec: decisionCounts(lower), higherDec: decisionCounts(higher) };
   }
 
-  function bucketCard(cls, label, list, dec) {
+  // Single merged card (lower + higher combined) — kept to 3 metrics for readability:
+  // SKU count, total deviation magnitude, and awaiting-review count. Approved/Rejected
+  // are dropped from this summary card since the per-row decision is already visible
+  // in the Planning grid; this card's job is just to flag scope + remaining work.
+  function mergedBucketCard(label, list, dec) {
+    var totalDevUnits = list.reduce(function (a, r) { return a + Math.abs(r.zonal - r.er); }, 0);
     var erSum = list.reduce(function (a, r) { return a + r.er; }, 0);
-    var zSum = list.reduce(function (a, r) { return a + r.zonal; }, 0);
-    var pct = erSum > 0 ? Math.round((Math.abs(zSum - erSum) / erSum) * 100) : 0;
-    return '<div class="summary-card ' + cls + '">' +
-      '<div class="sc-head"><span class="sc-label">' + label + '</span></div>' +
-      '<div class="sc-count">' + list.length + '<span>SKUs</span></div>' +
-      '<div class="sc-dev">' + fmt(Math.abs(zSum - erSum)) + ' units total deviation (' + pct + '%)</div>' +
-      '<div class="status-row">' +
-        '<div class="st approved"><span class="n">' + dec.approved + '</span><span class="l">Approved</span></div>' +
-        '<div class="st rejected"><span class="n">' + dec.rejected + '</span><span class="l">Rejected</span></div>' +
-        '<div class="st awaiting"><span class="n">' + dec.awaiting + '</span><span class="l">Awaiting</span></div>' +
+    var pct = erSum > 0 ? Math.round((totalDevUnits / erSum) * 100) : 0;
+    return '<div class="summary-card flagged flagged-line">' +
+      '<div class="fl-label">' + label + '</div>' +
+      '<div class="fl-row-under">' +
+        '<span class="fl-stat fl-awaiting"><b>' + dec.awaiting + '</b> awaiting review</span>' +
+        '<span class="fl-stat fl-right"><b>' + list.length + '</b> SKUs &nbsp;·&nbsp; ' + fmt(totalDevUnits) + ' units total deviation (' + pct + '%)</span>' +
       '</div>' +
     '</div>';
   }
+  function sumDec(a, b) { return { approved: a.approved + b.approved, rejected: a.rejected + b.rejected, awaiting: a.awaiting + b.awaiting }; }
 
   function renderSummaryTab() {
     // overall
@@ -1180,8 +1509,7 @@
       overallDecH.approved += s.higherDec.approved; overallDecH.rejected += s.higherDec.rejected; overallDecH.awaiting += s.higherDec.awaiting;
     }
     document.getElementById("overallSummary").innerHTML =
-      bucketCard("lower", "Zonal forecast lower than EasyReplenish", allLower, overallDec) +
-      bucketCard("higher", "Zonal forecast higher than EasyReplenish", allHigher, overallDecH);
+      mergedBucketCard("Zonal forecast deviates from EasyReplenish", allLower.concat(allHigher), sumDec(overallDec, overallDecH));
 
     // per zone
     var zoneListEl = document.getElementById("zoneList");
@@ -1199,8 +1527,7 @@
         '</div>' +
         '<div class="zone-row-body">' +
           '<div class="summary-split">' +
-            bucketCard("lower", "Lower than EasyReplenish", st.lower, st.lowerDec) +
-            bucketCard("higher", "Higher than EasyReplenish", st.higher, st.higherDec) +
+            mergedBucketCard("Flagged deviations", st.lower.concat(st.higher), sumDec(st.lowerDec, st.higherDec)) +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1216,6 +1543,37 @@
     });
   }
 
+  /* ---------------- tab explainer toast ---------------- */
+  var TAB_EXPLAINERS = {
+    planning: "Here you check each product for your zone. EasyReplenish shows its forecast next to your zone's forecast. If the two numbers are very different, that product is marked for review. You can then approve EasyReplenish's number, keep your own number, or enter a new number.",
+    summary: "This tab shows all 36 zones together in one place. For every product, we compare EasyReplenish's forecast with the zone's forecast. If the difference is more than 10%, the product is marked for review. This tab gives you a summary for all zones.",
+    sysforecast: "This tab shows how EasyReplenish made its forecast for each product. It shows recent sales, whether sales are going up or down, and any festival effect like Diwali. It also shows if the product is new, a top seller, or a slow seller. Every number here comes from real sales data.",
+    accuracy: "This tab looks back at the last 3-month cycle, after the real sales numbers are known. For each marked product, it compares three numbers — EasyReplenish's forecast, the zone's forecast, and the number that was approved — with the actual sales. This helps you see which forecast was closer to the truth.",
+    business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target."
+  };
+  var toastHost = document.getElementById("tabToast");
+
+  function hideTabToast() {
+    var card = toastHost.querySelector(".tab-toast-card");
+    if (card) card.classList.remove("show");
+  }
+
+  function showTabToast(view) {
+    var text = TAB_EXPLAINERS[view];
+    if (!text) return;
+    toastHost.innerHTML =
+      '<div class="tab-toast-card">' +
+        '<div class="tab-toast-text">' + text + '</div>' +
+        '<button type="button" class="tab-toast-close" aria-label="Dismiss">' +
+          '<span class="tab-toast-x">&times;</span>' +
+        '</button>' +
+      '</div>';
+    toastHost.querySelector(".tab-toast-close").addEventListener("click", hideTabToast);
+    var card = toastHost.querySelector(".tab-toast-card");
+    void card.offsetWidth; // force reflow so the transition plays from the initial hidden state
+    card.classList.add("show");
+  }
+
   /* ---------------- tabs ---------------- */
   document.querySelectorAll(".tab-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -1226,14 +1584,20 @@
       document.getElementById("view-sysforecast").classList.toggle("active", target === "sysforecast");
       document.getElementById("view-accuracy").classList.toggle("active", target === "accuracy");
       document.getElementById("view-business").classList.toggle("active", target === "business");
+      showTabToast(target);
     });
   });
+
+  // default Planning selection: East / North East 1 / Guwahati
+  pRegionSel.value = "East";
+  rebuildRegionZoneDepot("region");
 
   renderPlanning();
   renderSummaryTab();
   renderAccuracy();
   renderSystemForecast();
   renderBusiness();
+  showTabToast("planning");
 })();
 </script>
 </body>
