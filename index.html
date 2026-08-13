@@ -312,12 +312,18 @@
   .tab-toast-card.show { opacity: 1; transform: translateY(0); }
   .tab-toast-text { font-size: 13px; line-height: 1.55; color: var(--ink-muted); flex: 1; }
   .tab-toast-close {
-    flex: 0 0 auto; width: 26px; height: 26px; border: none; background: none; cursor: pointer;
+    position: relative; flex: 0 0 auto; width: 26px; height: 26px; border: none; background: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%;
   }
   .tab-toast-close:hover { background: var(--paper-tint); }
-  .tab-toast-x { font-size: 15px; line-height: 1; color: var(--ink-faint); }
+  .tab-toast-x { position: relative; z-index: 1; font-size: 15px; line-height: 1; color: var(--ink-faint); }
   .tab-toast-close:hover .tab-toast-x { color: var(--ink); }
+  .tab-toast-ring { position: absolute; top: 0; left: 0; transform: rotate(-90deg); pointer-events: none; }
+  .tab-toast-ring circle { fill: none; stroke-width: 2.5; }
+  .tab-toast-ring circle.ring-bg { stroke: var(--hairline); }
+  .tab-toast-ring circle.ring-progress { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 97.4; }
+  .tab-toast-ring circle.ring-progress.animate { animation: toastRingDeplete 15s linear forwards; }
+  @keyframes toastRingDeplete { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 97.4; } }
   .tab-toast-pill {
     position: absolute; top: 0; right: 0; pointer-events: none; cursor: pointer;
     width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--hairline-strong);
@@ -428,16 +434,24 @@
 
     <div class="filterbar">
       <div class="field">
-        <label for="zoneSelect2">Zone</label>
-        <select class="ctl" id="zoneSelect2"></select>
+        <label for="sfRegion">Region</label>
+        <select class="ctl" id="sfRegion"></select>
       </div>
       <div class="field">
-        <label for="bizSelect2">Division</label>
-        <select class="ctl" id="bizSelect2">
+        <label for="sfZone">Zone</label>
+        <select class="ctl" id="sfZone"></select>
+      </div>
+      <div class="field">
+        <label for="sfDepot">Depot</label>
+        <select class="ctl" id="sfDepot"></select>
+      </div>
+      <div class="field">
+        <label for="sfDivision">Division</label>
+        <select class="ctl" id="sfDivision">
           <option value="All">All</option>
           <option value="Batteries">Batteries</option>
           <option value="Lighting">Lighting</option>
-          <option value="Others">Others</option>
+          <option value="Flashlights">Flashlights</option>
         </select>
       </div>
       <div class="field" style="min-width:220px;">
@@ -863,60 +877,66 @@
   var pDivisionSel = document.getElementById("pDivision");
   var pSearchInput = document.getElementById("pSearch");
 
-  var pRegions = uniq(DEPOT_DATA.map(function (d) { return d.region; }));
-  fillSel(pRegionSel, pRegions, "All Regions");
+  // Reusable Region/Zone/Depot cascade — same rules everywhere it's used:
+  // Zone always holds a concrete value (no "All Zones") so the grid can never land on an
+  // empty state. Region and Depot are narrowing/reset controls only; Depot keeps "All
+  // Depots" since it's a meaningful reset (widen back to the region). onZoneChange(zoneName)
+  // fires whenever the resolved zone changes (or a re-render is otherwise needed).
+  function makeRegionZoneDepotController(regionSel, zoneSel, depotSel, onZoneChange) {
+    var regions = uniq(DEPOT_DATA.map(function (d) { return d.region; }));
+    fillSel(regionSel, regions, "All Regions");
 
-  // Zone always holds a concrete value — no "All Zones" option — so the grid can never
-  // land on an empty state. Region and Depot are narrowing/reset controls only; Depot
-  // keeps "All Depots" since it's still a meaningful reset (widen back to the region),
-  // while Zone never needs an "unset" state once every path below always picks one.
-  // source: "region" | "zone" | "depot" — which control the user just changed.
-  function rebuildRegionZoneDepot(source) {
-    var region = pRegionSel.value;
-    var scoped = DEPOT_DATA.filter(function (d) { return !region || d.region === region; });
+    // source: "region" | "zone" | "depot" — which control the user just changed.
+    function rebuild(source) {
+      var region = regionSel.value;
+      var scoped = DEPOT_DATA.filter(function (d) { return !region || d.region === region; });
 
-    if (source === "region") {
-      var zoneValues = scoped.map(function (d) { return d.zone; });
-      var keepZone = pZoneSel.value;
-      fillSel(pZoneSel, zoneValues, "All Zones", false);
-      pZoneSel.value = (keepZone && zoneValues.indexOf(keepZone) >= 0) ? keepZone : zoneValues[0];
-      var rMatch = scoped.filter(function (d) { return d.zone === pZoneSel.value; })[0];
-      fillSel(pDepotSel, rMatch ? [rMatch.depot] : [], "All Depots");
-      if (rMatch) pDepotSel.value = rMatch.depot;
-      pState.zoneName = pZoneSel.value;
-      renderPlanningOnly();
-      return;
-    }
-
-    if (source === "depot") {
-      var depotVal = pDepotSel.value;
-      if (!depotVal) {
-        // "All Depots" — widen the depot list back out, leave the current (still-valid) zone as is
-        fillSel(pDepotSel, uniq(scoped.map(function (d) { return d.depot; })), "All Depots");
-        renderPlanningOnly();
+      if (source === "region") {
+        var zoneValues = scoped.map(function (d) { return d.zone; });
+        var keepZone = zoneSel.value;
+        fillSel(zoneSel, zoneValues, "All Zones", false);
+        zoneSel.value = (keepZone && zoneValues.indexOf(keepZone) >= 0) ? keepZone : zoneValues[0];
+        var rMatch = scoped.filter(function (d) { return d.zone === zoneSel.value; })[0];
+        fillSel(depotSel, rMatch ? [rMatch.depot] : [], "All Depots");
+        if (rMatch) depotSel.value = rMatch.depot;
+        onZoneChange(zoneSel.value);
         return;
       }
-      var zoneScoped = scoped.filter(function (d) { return d.depot === depotVal; });
-      var zoneValues2 = zoneScoped.map(function (d) { return d.zone; });
-      fillSel(pZoneSel, zoneValues2, "All Zones", false);
-      pZoneSel.value = zoneValues2[0]; // auto-select — a depot can serve several zones, so default to the first
-      pState.zoneName = pZoneSel.value;
-      renderPlanningOnly();
-      return;
+
+      if (source === "depot") {
+        var depotVal = depotSel.value;
+        if (!depotVal) {
+          // "All Depots" — widen the depot list back out, leave the current (still-valid) zone as is
+          fillSel(depotSel, uniq(scoped.map(function (d) { return d.depot; })), "All Depots");
+          onZoneChange(zoneSel.value);
+          return;
+        }
+        var zoneScoped = scoped.filter(function (d) { return d.depot === depotVal; });
+        var zoneValues2 = zoneScoped.map(function (d) { return d.zone; });
+        fillSel(zoneSel, zoneValues2, "All Zones", false);
+        zoneSel.value = zoneValues2[0]; // auto-select — a depot can serve several zones, so default to the first
+        onZoneChange(zoneSel.value);
+        return;
+      }
+
+      // source === "zone" (Zone always has a concrete value now)
+      var zoneVal = zoneSel.value;
+      var match = scoped.filter(function (d) { return d.zone === zoneVal; })[0];
+      fillSel(depotSel, match ? [match.depot] : [], "All Depots");
+      if (match) depotSel.value = match.depot;
+      onZoneChange(zoneVal);
     }
 
-    // source === "zone" (Zone always has a concrete value now)
-    var zoneVal = pZoneSel.value;
-    var match = scoped.filter(function (d) { return d.zone === zoneVal; })[0];
-    fillSel(pDepotSel, match ? [match.depot] : [], "All Depots");
-    if (match) pDepotSel.value = match.depot;
-    pState.zoneName = zoneVal;
-    renderPlanningOnly();
+    regionSel.addEventListener("change", function () { rebuild("region"); });
+    zoneSel.addEventListener("change", function () { rebuild("zone"); });
+    depotSel.addEventListener("change", function () { rebuild("depot"); });
+    return rebuild;
   }
 
-  pRegionSel.addEventListener("change", function () { rebuildRegionZoneDepot("region"); });
-  pZoneSel.addEventListener("change", function () { rebuildRegionZoneDepot("zone"); });
-  pDepotSel.addEventListener("change", function () { rebuildRegionZoneDepot("depot"); });
+  var rebuildRegionZoneDepot = makeRegionZoneDepotController(pRegionSel, pZoneSel, pDepotSel, function (zoneName) {
+    pState.zoneName = zoneName;
+    renderPlanningOnly();
+  });
 
   pDivisionSel.addEventListener("change", function () { pState.division = this.value; renderPlanningOnly(); });
 
@@ -1134,16 +1154,19 @@
     renderGrid();
   }
 
-  /* ---------------- System Forecast tab's own Zone/Business filter (unchanged, not yet migrated) ---------------- */
-  var zoneSelect2 = document.getElementById("zoneSelect2");
-  for (var zi = 1; zi <= ZONES; zi++) {
-    var zOpt = document.createElement("option"); zOpt.value = zi; zOpt.textContent = "Zone " + zi; zoneSelect2.appendChild(zOpt);
-  }
-  zoneSelect2.value = state.zone;
-  zoneSelect2.addEventListener("change", function () { state.zone = parseInt(this.value, 10); renderSystemForecast(); });
+  /* ---------------- System Forecast tab's own Region/Zone/Depot/Division filter ---------------- */
+  var sfState = { zoneName: null, division: "All" };
+  var sfRegionSel = document.getElementById("sfRegion");
+  var sfZoneSel = document.getElementById("sfZone");
+  var sfDepotSel = document.getElementById("sfDepot");
+  var sfDivisionSel = document.getElementById("sfDivision");
 
-  var bizSelect2 = document.getElementById("bizSelect2");
-  bizSelect2.addEventListener("change", function () { state.biz = this.value; renderSystemForecast(); });
+  var rebuildSfRegionZoneDepot = makeRegionZoneDepotController(sfRegionSel, sfZoneSel, sfDepotSel, function (zoneName) {
+    sfState.zoneName = zoneName;
+    renderSystemForecast();
+  });
+
+  sfDivisionSel.addEventListener("change", function () { sfState.division = this.value; renderSystemForecast(); });
 
   var sfSearchTerm = "";
   var sfSearchInput = document.getElementById("sfSearch");
@@ -1164,10 +1187,12 @@
   }
 
   /* ---------------- System Forecast view (product-level) ---------------- */
-  function systemForecastProductRows(zone, biz, search) {
+  function systemForecastProductRows(zone, division, search) {
     var out = [];
+    if (!zone) return out;
     SKUS.forEach(function (sku) {
-      if (biz !== "All" && sku.biz !== biz) return;
+      if (!sku.division) return;
+      if (division !== "All" && sku.division !== division) return;
       var row = buildRow(zone, sku);
       var prods = productsFor(sku);
       var weights = productWeights(zone, sku, prods);
@@ -1194,8 +1219,8 @@
     return out;
   }
 
-  function sfCsvFor(zone, biz, search) {
-    var rows = systemForecastProductRows(zone, biz, search);
+  function sfCsvFor(zone, division, search) {
+    var rows = systemForecastProductRows(zone, division, search);
     var lines = ["sku_code,sku_name,product_code,product_name,sales_may_2026,sales_jun_2026,sales_jul_2026,seasonality_pct,classification,forecast_aug_oct_2026"];
     rows.forEach(function (r) {
       lines.push([
@@ -1209,18 +1234,19 @@
 
   var btnDownloadSfCsv = document.getElementById("btnDownloadSfCsv");
   btnDownloadSfCsv.addEventListener("click", function () {
-    var csv = sfCsvFor(state.zone, state.biz, sfSearchTerm);
+    if (!sfState.zoneName) return;
+    var csv = sfCsvFor(sfState.zoneName, sfState.division, sfSearchTerm);
     var blob = new Blob([csv], { type: "text/csv" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "system_forecast_zone" + state.zone + "_" + state.biz.toLowerCase() + ".csv";
+    a.download = "system_forecast_" + sfState.zoneName.replace(/[^a-z0-9]+/gi, "_") + "_" + sfState.division.toLowerCase() + ".csv";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   });
 
   function renderSystemForecast() {
     var list = document.getElementById("sfList");
     if (!list) return;
-    var rows = systemForecastProductRows(state.zone, state.biz, sfSearchTerm);
+    var rows = systemForecastProductRows(sfState.zoneName, sfState.division, sfSearchTerm);
 
     list.innerHTML = rows.map(function (r) {
       var trendCls = r.trendTag === "Increasing" ? "up" : r.trendTag === "Decreasing" ? "down" : r.trendTag === "Constant" ? "flat" : "none";
@@ -1575,6 +1601,14 @@
     toastHost.classList.add("collapsed");
   }
 
+  function restartRing() {
+    var ring = toastHost.querySelector(".ring-progress");
+    if (!ring) return;
+    ring.classList.remove("animate");
+    void ring.getBoundingClientRect(); // force reflow so the animation restarts from 0
+    ring.classList.add("animate");
+  }
+
   function expandTabToast() {
     if (toastCollapseTimer) clearTimeout(toastCollapseTimer);
     toastHost.classList.remove("collapsed");
@@ -1583,6 +1617,7 @@
       void card.offsetWidth; // force reflow so the transition plays from the initial hidden state
       card.classList.add("show");
     }
+    restartRing();
     toastCollapseTimer = setTimeout(collapseTabToast, TOAST_MS);
   }
 
@@ -1595,6 +1630,10 @@
       '<div class="tab-toast-card">' +
         '<div class="tab-toast-text">' + text + '</div>' +
         '<button type="button" class="tab-toast-close" aria-label="Collapse">' +
+          '<svg class="tab-toast-ring" viewBox="0 0 36 36" width="26" height="26">' +
+            '<circle class="ring-bg" cx="18" cy="18" r="15.5"></circle>' +
+            '<circle class="ring-progress animate" cx="18" cy="18" r="15.5"></circle>' +
+          '</svg>' +
           '<span class="tab-toast-x">&times;</span>' +
         '</button>' +
       '</div>' +
@@ -1626,6 +1665,11 @@
   // default Planning selection: East / North East 1 / Guwahati
   pRegionSel.value = "East";
   rebuildRegionZoneDepot("region");
+
+  // default System Forecast selection: East / North East 1 / Guwahati (same as Planning,
+  // so the two tabs agree by default — but each has its own independent selector)
+  sfRegionSel.value = "East";
+  rebuildSfRegionZoneDepot("region");
 
   renderPlanning();
   renderSummaryTab();
