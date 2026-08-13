@@ -143,7 +143,9 @@
 
   .summary-card.accline { display: flex; flex-direction: column; }
   .accline .ac-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 11px 0; }
-  .accline .ac-row + .ac-row { border-top: 1px solid var(--hairline); }
+  .accline .ac-row + .ac-row, .accline .ac-subnote + .ac-row { border-top: 1px solid var(--hairline); }
+  .accline .ac-row.has-note { padding-bottom: 2px; }
+  .accline .ac-subnote { font-size: 12px; color: var(--ink-faint); text-align: right; padding: 0 0 11px; }
   .accline .ac-label { font-size: 14px; font-weight: 700; color: var(--ink); }
   .accline .ac-stats { font-size: 14px; color: var(--ink-muted); white-space: nowrap; }
   .accline .ac-stats b { font-weight: 800; }
@@ -687,7 +689,6 @@
 
     <div class="field" style="margin-bottom:0;"><label>Overall — all zones</label></div>
     <div id="accuracyScorecard" style="margin-top:14px;"></div>
-    <div class="benefit-note" id="accuracyBenefit"></div>
 
     <div class="field" style="margin-bottom:10px;"><label>Zone by zone</label></div>
     <div class="zone-list" id="accuracyZoneList"></div>
@@ -1071,6 +1072,9 @@
     if (n >= 1000) return (n / 1000).toFixed(1) + "K";
     return String(n);
   }
+  // Drops a redundant ".0" (e.g. "8.0L" -> "8L") without touching fmtShort's general
+  // one-decimal formatting used elsewhere in the app.
+  function fmtShortTrim(n) { return fmtShort(n).replace(/\.0(?=[A-Za-z])/, ""); }
 
   /* ---------------- Planning view (product-level, region/zone/depot filters) ---------------- */
   var pState = { zoneName: null, division: "All", search: "" };
@@ -1486,11 +1490,16 @@
   /* ---------------- Forecast Accuracy view ---------------- */
   var accuracyBiz = "All";
 
-  function accRow(label, acc, excess, primary) {
-    return '<div class="ac-row' + (primary ? ' primary' : '') + '">' +
+  function accRow(label, acc, excess, primary, reductionVsUnits) {
+    var hasNote = reductionVsUnits != null && reductionVsUnits > 0;
+    var row = '<div class="ac-row' + (primary ? ' primary' : '') + (hasNote ? ' has-note' : '') + '">' +
       '<span class="ac-label">' + label + '</span>' +
-      '<span class="ac-stats"><b class="ac-acc ' + accPillCls(acc) + '">' + acc + '%</b> accurate &nbsp;·&nbsp; <b>' + fmtShort(excess) + '</b> excess</span>' +
+      '<span class="ac-stats"><b class="ac-acc ' + accPillCls(acc) + '">' + acc + '%</b> accurate &nbsp;·&nbsp; <b>' + fmtShortTrim(excess) + '</b> units in excess inventory</span>' +
     '</div>';
+    var note = hasNote
+      ? '<div class="ac-subnote">' + fmtShortTrim(reductionVsUnits) + ' units in excess inventory reduction vs. your approved forecast</div>'
+      : '';
+    return row + note;
   }
 
   function accuracyCardHtml(r) {
@@ -1527,7 +1536,6 @@
 
   function renderAccuracy() {
     var scorecardEl = document.getElementById("accuracyScorecard");
-    var benefitEl = document.getElementById("accuracyBenefit");
     var zoneListEl = document.getElementById("accuracyZoneList");
     if (!scorecardEl) return;
 
@@ -1541,21 +1549,14 @@
     var erExcess = excessUnits(allRows, "er");
     var zonalExcess = excessUnits(allRows, "zonal");
     var approvedExcess = excessUnits(allRows, "approved");
+    var erReduction = approvedExcess > 0 && erExcess < approvedExcess ? approvedExcess - erExcess : null;
 
     scorecardEl.innerHTML =
       '<div class="summary-card accline">' +
         accRow("Your approved forecast resulted in", approvedAcc, approvedExcess, true) +
-        accRow("If you had used EasyReplenish's forecast directly", erAcc, erExcess) +
+        accRow("If you had used EasyReplenish's forecast directly", erAcc, erExcess, false, erReduction) +
         accRow("If you had used the zonal manager's forecast directly", zonalAcc, zonalExcess) +
       '</div>';
-
-    if (zonalExcess > 0 && erExcess < zonalExcess) {
-      var pct = Math.round(((zonalExcess - erExcess) / zonalExcess) * 100);
-      benefitEl.innerHTML = "Had EasyReplenish's forecast been used directly this cycle, excess inventory would have been <b>" +
-        pct + "% lower</b> than the zonal manager forecast alone — <b>" + fmt(zonalExcess - erExcess) + " fewer units</b> sitting unsold, across all 36 zones.";
-    } else {
-      benefitEl.innerHTML = "For this selection, EasyReplenish's and the zonal manager forecast produced similar excess inventory this cycle.";
-    }
 
     // ---- zone by zone, expand for SKU split ----
     var openZones = zoneListEl._open || {};
