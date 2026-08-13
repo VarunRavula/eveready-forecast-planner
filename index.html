@@ -239,7 +239,15 @@
   .status-badge.needs { background: var(--warn-soft); color: var(--warn); }
   .status-badge.approved { background: var(--success-soft); color: var(--success); }
   .status-badge.rejected { background: var(--danger-soft); color: var(--danger); }
-  .status-badge.inline { background: var(--paper-sunken); color: var(--ink-faint); }
+  .status-badge.inline {
+    position: relative; background: var(--paper-sunken); color: var(--ink-faint); cursor: help;
+  }
+  .status-badge.inline::after {
+    content: attr(data-tip); position: absolute; right: 0; bottom: 100%; transform: translateY(-8px);
+    width: max-content; max-width: 230px; white-space: normal; background: var(--ink); color: var(--paper); font-weight: 400; font-size: 12px;
+    line-height: 1.4; padding: 8px 10px; border-radius: 6px; opacity: 0; pointer-events: none; text-align: left; z-index: 5;
+  }
+  .status-badge.inline:hover::after, .status-badge.inline:focus-visible::after { opacity: 1; }
   .rc-actions { display: flex; gap: 8px; margin-top: 9px; flex-wrap: wrap; }
   .rc-actions button {
     font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--hairline-strong);
@@ -1100,10 +1108,22 @@
     '</div>';
   }
 
+  function rowNeedsReview(r) {
+    var override = pUploadOverride[pState.zoneName + "|" + r.code];
+    var zTotal = override ? override.total : r.zonal;
+    var devPct = Math.round(((zTotal - r.er) / r.er) * 100);
+    var flagged = Math.abs(devPct) >= 15;
+    var decision = pDecisions[pState.zoneName + "|" + r.code];
+    return flagged && decision !== "approved" && decision !== "rejected";
+  }
+
   function renderGrid() {
     var list = document.getElementById("gridList");
     if (!pState.zoneName) { list.innerHTML = ""; return; }
-    var rows = currentRows();
+    // Needs-review rows first; stable sort keeps everything else in its existing order.
+    var rows = currentRows().slice().sort(function (a, b) {
+      return (rowNeedsReview(b) ? 1 : 0) - (rowNeedsReview(a) ? 1 : 0);
+    });
     list.innerHTML = rows.map(function (r) {
       var override = pUploadOverride[pState.zoneName + "|" + r.code];
       var zTotal = override ? override.total : r.zonal;
@@ -1120,7 +1140,7 @@
       var decision = pDecisions[pState.zoneName + "|" + r.code];
       var statusHtml;
       if (!flagged) {
-        statusHtml = '<span class="status-badge inline">In line</span>';
+        statusHtml = '<span class="status-badge inline" tabindex="0" data-tip="EasyReplenish and zonal manager forecast deviation is less than 10%. No approval needed.">In line</span>';
       } else if (decision === "approved") {
         statusHtml = '<span class="status-badge approved">Approved</span><button type="button" class="change-link" data-change="' + r.code + '" style="display:inline-block;">Change</button>';
       } else if (decision === "rejected") {
