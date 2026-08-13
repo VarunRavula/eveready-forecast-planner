@@ -453,6 +453,65 @@
   .tab-toast-pill-icon { font-size: 13px; font-weight: 800; font-style: italic; color: var(--accent); font-family: Georgia, serif; }
   .tab-toast-pill:hover { border-color: var(--accent); }
   @media (max-width: 480px) { .tab-toast { left: 16px; right: 16px; max-width: none; } }
+
+  /* ---------- Presentation tab ---------- */
+  .pres-slide { display: none; }
+  .pres-slide.active { display: block; }
+  .pres-data-strip {
+    margin: 0 0 22px; border-radius: 12px; background: var(--paper-tint); border: 1px solid var(--hairline);
+    padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .pres-data-strip .pres-lbl { font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); }
+  .pres-data-strip .pres-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pres-data-strip .pres-tag {
+    font-size: 12.5px; font-weight: 700; color: var(--accent-strong); background: #fff;
+    border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 5px 11px;
+  }
+  .pres-section-label { font-size: 22px; font-weight: 800; color: var(--accent); margin: 0 0 20px; letter-spacing: -0.005em; line-height: 1.25; }
+  .pres-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 720px) { .pres-cols { grid-template-columns: 1fr; } }
+  .pres-col {
+    border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--paper-raised);
+    box-shadow: var(--shadow-card); padding: 22px 24px;
+  }
+  .pres-col h2 { font-size: 16.5px; font-weight: 800; margin: 0 0 12px; }
+  ul.pres-prose { margin: 0; padding: 0; list-style: none; }
+  ul.pres-prose li { position: relative; padding-left: 26px; margin-top: 10px; font-size: 14px; line-height: 1.5; }
+  ul.pres-prose li:first-child { margin-top: 0; }
+  ul.pres-prose li::before {
+    content: "\2713"; position: absolute; left: 0; top: 1px; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
+  .pres-method-card { padding: 18px 20px; }
+  .pres-method-card .pres-seg-name {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .pres-method-card .pres-method-name { font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+  .pres-method-card .pres-method-tech { font-size: 13px; color: var(--ink-muted); font-style: italic; margin-bottom: 10px; }
+  .pres-method-card .pres-method-example {
+    font-size: 12.5px; color: var(--ink-muted); border-top: 1px dashed var(--hairline-strong); padding-top: 9px;
+  }
+  .pres-disclaimer {
+    margin-top: 20px; border-radius: 10px; background: var(--warn-soft); border: 1px solid rgba(180, 83, 9, 0.22);
+    padding: 10px 16px; display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; color: var(--ink);
+  }
+  .pres-disclaimer .pres-note-tag {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--warn);
+    flex: 0 0 auto;
+  }
+  .pres-nav {
+    display: flex; align-items: center; justify-content: space-between; margin-top: 30px;
+    padding-top: 22px; border-top: 1px solid var(--hairline);
+  }
+  .pres-dots { display: flex; gap: 8px; }
+  .pres-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--hairline-strong); border: none; padding: 0; cursor: pointer;
+  }
+  .pres-dot.active { background: var(--accent); }
+  .pres-nav .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pres-nav .btn:disabled:hover { border-color: var(--hairline-strong); color: inherit; }
 </style>
 </head>
 <body>
@@ -464,6 +523,7 @@
       <button type="button" class="menu-btn active" data-menu="datasources">Data Sources</button>
       <button type="button" class="menu-btn" data-menu="planning">Demand Planning</button>
       <button type="button" class="menu-btn" data-menu="transfer">Stock Imbalance Transfer</button>
+      <button type="button" class="menu-btn" data-menu="presentation">Presentation</button>
     </nav>
   </div>
   <div class="subnav" id="subnav" style="display:none;">
@@ -742,6 +802,98 @@
       </div>
       <div class="grid-list grid-cols-tf" id="tfSkuList"></div>
       <div class="proto-note">Sample data for this walkthrough — not Eveready's actual figures.</div>
+    </div>
+  </section>
+
+  <!-- PRESENTATION VIEW -->
+  <section id="view-presentation" class="view">
+    <h1 class="page-title">How will EasyReplenish forecast for Eveready</h1>
+    <p class="page-sub">A two-slide summary &mdash; business explanation, then technical detail.</p>
+
+    <div class="pres-slide active" data-pres-slide="1">
+      <div class="pres-data-strip">
+        <span class="pres-lbl">Built from your SAP data</span>
+        <div class="pres-tags">
+          <span class="pres-tag">Recent sales</span>
+          <span class="pres-tag">Same season, last year</span>
+          <span class="pres-tag">Festivals &amp; sale days</span>
+          <span class="pres-tag">New / popular / slow-moving</span>
+        </div>
+      </div>
+
+      <div class="pres-section-label">Two methods, for two different businesses</div>
+
+      <div class="pres-cols">
+        <div class="pres-col">
+          <h2>Batteries &mdash; a steady, trend-based method</h2>
+          <ul class="pres-prose">
+            <li>High volume &mdash; even a small forecast error means a lot of excess or shortfall stock</li>
+            <li>Demand varies by zone &mdash; driven by local conditions and channel mix</li>
+            <li>Different baseline demand across zones</li>
+            <li>A simple trend-based method gets this right consistently &mdash; manual effort doesn't</li>
+          </ul>
+        </div>
+        <div class="pres-col">
+          <h2>Lighting &mdash; a smarter, event-aware method</h2>
+          <ul class="pres-prose">
+            <li>Close to 500 products, with new ones launching often</li>
+            <li>Sourced from China &mdash; long wait if the forecast is wrong</li>
+            <li>Demand jumps sharply around festivals like Diwali</li>
+            <li>New products have no sales history to learn from</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pres-slide" data-pres-slide="2">
+      <div class="pres-data-strip">
+        <span class="pres-lbl">Segment before picking a model</span>
+        <div class="pres-tags">
+          <span class="pres-tag">Batteries &mdash; mature demand</span>
+          <span class="pres-tag">Lighting &mdash; fast-fashion-adjacent</span>
+          <span class="pres-tag">ABC-XYZ segmentation</span>
+        </div>
+      </div>
+
+      <div class="pres-section-label">Method per segment</div>
+
+      <div class="pres-cols">
+        <div class="pres-col pres-method-card">
+          <div class="pres-seg-name">Stable, high-volume (most Batteries)</div>
+          <div class="pres-method-name">Classical time-series</div>
+          <div class="pres-method-tech">Exponential smoothing (Holt-Winters / ETS)</div>
+          <div class="pres-method-example">E.g. AA batteries sell ~40,000 units/month, steady for 3 years straight.</div>
+        </div>
+        <div class="pres-col pres-method-card">
+          <div class="pres-seg-name">Seasonal, high-volume (festival Lighting)</div>
+          <div class="pres-method-name">Time-series + event modelling</div>
+          <div class="pres-method-tech">Gradient-boosted trees (LightGBM/XGBoost-style)</div>
+          <div class="pres-method-example">E.g. LED string lights sell 5x more in the 3 weeks before Diwali.</div>
+        </div>
+        <div class="pres-col pres-method-card">
+          <div class="pres-seg-name">Long-tail slow movers</div>
+          <div class="pres-method-name">Intermittent-demand method</div>
+          <div class="pres-method-tech">Croston's method / TSB</div>
+          <div class="pres-method-example">E.g. A niche torch model sells only 20-30 units, once every 10-15 days.</div>
+        </div>
+        <div class="pres-col pres-method-card">
+          <div class="pres-seg-name">New launches, zero history</div>
+          <div class="pres-method-name">Cold-start, comparable-SKU method</div>
+          <div class="pres-method-tech">Nearest-neighbour on category, price tier, channel mix</div>
+          <div class="pres-method-example">E.g. A new 9W LED bulb has no sales history &mdash; it copies last year's closest-priced launch's first-3-month curve.</div>
+        </div>
+      </div>
+
+      <div class="pres-disclaimer"><span class="pres-note-tag">Note</span><span>These are directional. Once run on your real SAP data, the model per segment may change based on how each actually performs.</span></div>
+    </div>
+
+    <div class="pres-nav">
+      <button type="button" class="btn" id="presPrev" disabled>&larr; Previous</button>
+      <div class="pres-dots">
+        <button type="button" class="pres-dot active" data-pres-goto="1" aria-label="Slide 1"></button>
+        <button type="button" class="pres-dot" data-pres-goto="2" aria-label="Slide 2"></button>
+      </div>
+      <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
     </div>
   </section>
 
@@ -1902,7 +2054,8 @@
     accuracy: "This tab looks back at the last 3-month cycle, after the real sales numbers are known. For each marked product, it compares three numbers — EasyReplenish's forecast, the zone's forecast, and the number that was approved — with the actual sales. This helps you see which forecast was closer to the truth.",
     business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target.",
     datasources: "This page shows where the data comes from. All of it is read from your SAP system — sales history, stock at each depot, purchases, production, every depot transaction, and the product master. It also shows how the data reaches us: SAP writes files each night and sends them over a secure FTP link. Nothing is typed in by hand, and nothing in SAP is changed.",
-    transfer: "This page shows one example: Patna has extra stock, and Dhulagarh, in the same region, is running low. The AI summary at the top tells you what to move. The table below shows the exact products and units."
+    transfer: "This page shows one example: Patna has extra stock, and Dhulagarh, in the same region, is running low. The AI summary at the top tells you what to move. The table below shows the exact products and units.",
+    presentation: "This page is a short 2-slide summary of the forecasting approach — the business explanation, then the technical detail. Use Previous and Next at the bottom to move between the two."
   };
   var toastHost = document.getElementById("tabToast");
   var TOAST_MS = 15000;
@@ -1968,7 +2121,7 @@
   // Two levels: the menu bar picks a section, and the "Demand Planning" section keeps the
   // original four tabs as a second row. The other two sections are single pages, so the
   // sub-tab row is hidden for them (and the toast moves up to sit under the shorter header).
-  var VIEWS = ["planning", "sysforecast", "accuracy", "business", "datasources", "transfer"];
+  var VIEWS = ["planning", "sysforecast", "accuracy", "business", "datasources", "transfer", "presentation"];
   var subnav = document.getElementById("subnav");
   var activeSubView = "planning";
 
@@ -1997,6 +2150,33 @@
       setView(activeSubView);
     });
   });
+
+  /* ---------------- Presentation slides (prev/next, no scroll) ---------------- */
+  (function () {
+    var presSlides = document.querySelectorAll(".pres-slide");
+    var presDots = document.querySelectorAll(".pres-dot");
+    var presPrev = document.getElementById("presPrev");
+    var presNext = document.getElementById("presNext");
+    var presIndex = 0;
+
+    function presRender() {
+      presSlides.forEach(function (s, i) { s.classList.toggle("active", i === presIndex); });
+      presDots.forEach(function (d, i) { d.classList.toggle("active", i === presIndex); });
+      presPrev.disabled = presIndex === 0;
+      presNext.disabled = presIndex === presSlides.length - 1;
+    }
+    function presGo(i) {
+      presIndex = Math.max(0, Math.min(presSlides.length - 1, i));
+      presRender();
+    }
+
+    presPrev.addEventListener("click", function () { presGo(presIndex - 1); });
+    presNext.addEventListener("click", function () { presGo(presIndex + 1); });
+    presDots.forEach(function (d, i) {
+      d.addEventListener("click", function () { presGo(i); });
+    });
+    presRender();
+  })();
 
   // default Planning selection: East / North East 1 / Guwahati
   wireCsvControls(); // Download/Upload controls are static now, so wire them once
