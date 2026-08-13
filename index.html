@@ -172,8 +172,8 @@
   .grid-cols { --gg: minmax(115px,0.8fr) minmax(150px,1.05fr) minmax(105px,0.8fr) minmax(135px,1fr) minmax(110px,0.85fr) minmax(90px,0.7fr) minmax(175px,1.05fr); }
   .grid-cols-sf { --gg: minmax(110px,0.75fr) minmax(150px,0.95fr) minmax(230px,1.5fr) minmax(90px,0.6fr) minmax(120px,0.8fr) minmax(150px,0.9fr); }
   .rs-col { display: flex; flex-direction: column; gap: 4px; }
-  .rs-row { display: flex; justify-content: space-between; gap: 14px; font-size: 12.5px; }
-  .rs-row .rs-m { color: var(--ink-faint); }
+  .rs-row { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
+  .rs-row .rs-m { color: var(--ink-faint); min-width: 66px; }
   .rs-row .rs-v { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
   .rs-col .trend-tag { align-self: flex-start; margin-top: 3px; }
   .grid-head {
@@ -318,6 +318,17 @@
   .tab-toast-close:hover { background: var(--paper-tint); }
   .tab-toast-x { font-size: 15px; line-height: 1; color: var(--ink-faint); }
   .tab-toast-close:hover .tab-toast-x { color: var(--ink); }
+  .tab-toast-pill {
+    position: absolute; top: 0; right: 0; pointer-events: none; cursor: pointer;
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--hairline-strong);
+    background: var(--paper-raised); box-shadow: var(--shadow-card);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateX(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .tab-toast.collapsed .tab-toast-pill { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .tab-toast-pill-icon { font-size: 13px; font-weight: 800; font-style: italic; color: var(--accent); font-family: Georgia, serif; }
+  .tab-toast-pill:hover { border-color: var(--accent); }
   @media (max-width: 480px) { .tab-toast { left: 16px; right: 16px; max-width: none; } }
 </style>
 </head>
@@ -345,7 +356,7 @@
     <div class="planning-head-row">
       <div class="planning-head-text">
         <h1 class="page-title">Demand Planning</h1>
-        <p class="page-sub">Compare your zonal forecast against EasyReplenish</p>
+        <p class="page-sub">Compare your zonal manager forecast against EasyReplenish</p>
       </div>
       <div class="summary-banner" id="summaryBanner"></div>
     </div>
@@ -380,7 +391,7 @@
 
     <div class="proto-frame">
       <div class="grid-head grid-cols">
-        <span>SKU</span><span>Product</span><span>EasyReplenish forecast</span><span>Zonal forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
+        <span>SKU</span><span>Product</span><span>EasyReplenish forecast</span><span>Zonal manager forecast</span><span>Final approved forecast</span><span>Reason</span><span>Status</span>
       </div>
       <div class="grid-list grid-cols" id="gridList"></div>
       <div class="proto-note">3-month total shown per SKU. Sample data for this walkthrough — not Eveready's actual figures.</div>
@@ -569,7 +580,7 @@
         { code: "LGT-06-RG", name: "Torch Standard — Rubber Grip" }
       ] },
     { code: "LGT-07", name: "Emergency Lantern", biz: "Lighting", division: "Flashlights", base: 1100, cls: "slow", season: 0.10, seasonLabel: "Festive travel & power backup" },
-    { code: "LGT-08", name: "Decorative String Lights", biz: "Lighting", division: "Lighting", base: 2200, cls: "slow", season: 0.45, seasonLabel: "Diwali falls earlier this year", flag: { dir: "lo", reason: "Festive shift", tip: "Diwali falls earlier this year — zonal forecast doesn't reflect it yet.", mag: [0.25, 0.35] },
+    { code: "LGT-08", name: "Decorative String Lights", biz: "Lighting", division: "Lighting", base: 2200, cls: "slow", season: 0.45, seasonLabel: "Diwali falls earlier this year", flag: { dir: "lo", reason: "Festive shift", tip: "Diwali falls earlier this year — zonal manager forecast doesn't reflect it yet.", mag: [0.25, 0.35] },
       products: [
         { code: "LGT-08-WW20", name: "String Lights — Warm White, 20m" },
         { code: "LGT-08-MC20", name: "String Lights — Multicolor, 20m" },
@@ -929,8 +940,8 @@
     if (!pUploaded[pState.zoneName]) {
       el.innerHTML =
         '<div class="csv-controls-standalone">' +
-          '<button type="button" class="btn small ghost" id="btnSampleCsv">Download Sample Zonal Forecast</button>' +
-          '<label class="btn small ghost" for="csvUpload">Upload Sample Zonal Forecast</label>' +
+          '<button type="button" class="btn small ghost" id="btnSampleCsv">Download Sample Zonal Manager Forecast</button>' +
+          '<label class="btn small ghost" for="csvUpload">Upload Sample Zonal Manager Forecast</label>' +
           '<input type="file" id="csvUpload" accept=".csv">' +
         '</div>';
       wireCsvControls();
@@ -961,8 +972,8 @@
 
     el.innerHTML =
       '<div class="summary-split">' +
-        bucketHtml("lower", "Zonal forecast lower than EasyReplenish", lower) +
-        bucketHtml("higher", "Zonal forecast higher than EasyReplenish", higher) +
+        bucketHtml("lower", "Zonal manager forecast lower than EasyReplenish", lower) +
+        bucketHtml("higher", "Zonal manager forecast higher than EasyReplenish", higher) +
       '</div>' +
       '<div class="csv-hint">' + pState.zoneName + ', ' + scope + ' — forecast uploaded. <button type="button" class="btn small ghost" id="btnReupload" style="margin-left:8px;">Re-upload CSV</button></div>';
     document.getElementById("btnReupload").addEventListener("click", function () {
@@ -1261,7 +1272,7 @@
       '</div>' +
       '<div class="sf-stats">' +
         '<div class="sf-stat"><span class="sl">EasyReplenish forecast</span><div class="sv">' + fmt(r.er) + '</div><span class="acc-pill ' + accPillCls(erA) + '">' + erA + '% accurate</span></div>' +
-        '<div class="sf-stat"><span class="sl">Zonal forecast</span><div class="sv">' + fmt(r.zonal) + '</div><span class="acc-pill ' + accPillCls(zA) + '">' + zA + '% accurate</span></div>' +
+        '<div class="sf-stat"><span class="sl">Zonal manager forecast</span><div class="sv">' + fmt(r.zonal) + '</div><span class="acc-pill ' + accPillCls(zA) + '">' + zA + '% accurate</span></div>' +
         '<div class="sf-stat"><span class="sl">Approved (used)</span><div class="sv">' + fmt(r.approved) + '</div></div>' +
         '<div class="sf-stat final"><span class="sl">Actual sales</span><div class="sv">' + fmt(r.actual) + '</div></div>' +
       '</div>' +
@@ -1307,9 +1318,9 @@
     if (zonalExcess > 0 && erExcess < zonalExcess) {
       var pct = Math.round(((zonalExcess - erExcess) / zonalExcess) * 100);
       benefitEl.innerHTML = "Had EasyReplenish's forecast been used directly this cycle, excess inventory would have been <b>" +
-        pct + "% lower</b> than the zonal forecast alone — <b>" + fmt(zonalExcess - erExcess) + " fewer units</b> sitting unsold, across all 36 zones.";
+        pct + "% lower</b> than the zonal manager forecast alone — <b>" + fmt(zonalExcess - erExcess) + " fewer units</b> sitting unsold, across all 36 zones.";
     } else {
-      benefitEl.innerHTML = "For this selection, EasyReplenish's and the zonal forecast produced similar excess inventory this cycle.";
+      benefitEl.innerHTML = "For this selection, EasyReplenish's and the zonal manager forecast produced similar excess inventory this cycle.";
     }
 
     // ---- zone by zone, expand for SKU split ----
@@ -1509,7 +1520,7 @@
       overallDecH.approved += s.higherDec.approved; overallDecH.rejected += s.higherDec.rejected; overallDecH.awaiting += s.higherDec.awaiting;
     }
     document.getElementById("overallSummary").innerHTML =
-      mergedBucketCard("Zonal forecast deviates from EasyReplenish", allLower.concat(allHigher), sumDec(overallDec, overallDecH));
+      mergedBucketCard("Zonal manager forecast deviates from EasyReplenish", allLower.concat(allHigher), sumDec(overallDec, overallDecH));
 
     // per zone
     var zoneListEl = document.getElementById("zoneList");
@@ -1552,26 +1563,50 @@
     business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target."
   };
   var toastHost = document.getElementById("tabToast");
+  var TOAST_MS = 15000;
+  var toastCollapseTimer = null;
 
-  function hideTabToast() {
+  // Auto-closing never fully removes the toast — it collapses into a small pill
+  // on the right that the user can click to bring the explanation back at any time.
+  function collapseTabToast() {
+    if (toastCollapseTimer) { clearTimeout(toastCollapseTimer); toastCollapseTimer = null; }
     var card = toastHost.querySelector(".tab-toast-card");
     if (card) card.classList.remove("show");
+    toastHost.classList.add("collapsed");
+  }
+
+  function expandTabToast() {
+    if (toastCollapseTimer) clearTimeout(toastCollapseTimer);
+    toastHost.classList.remove("collapsed");
+    var card = toastHost.querySelector(".tab-toast-card");
+    if (card) {
+      void card.offsetWidth; // force reflow so the transition plays from the initial hidden state
+      card.classList.add("show");
+    }
+    toastCollapseTimer = setTimeout(collapseTabToast, TOAST_MS);
   }
 
   function showTabToast(view) {
     var text = TAB_EXPLAINERS[view];
     if (!text) return;
+    if (toastCollapseTimer) clearTimeout(toastCollapseTimer);
+    toastHost.classList.remove("collapsed");
     toastHost.innerHTML =
       '<div class="tab-toast-card">' +
         '<div class="tab-toast-text">' + text + '</div>' +
-        '<button type="button" class="tab-toast-close" aria-label="Dismiss">' +
+        '<button type="button" class="tab-toast-close" aria-label="Collapse">' +
           '<span class="tab-toast-x">&times;</span>' +
         '</button>' +
-      '</div>';
-    toastHost.querySelector(".tab-toast-close").addEventListener("click", hideTabToast);
+      '</div>' +
+      '<button type="button" class="tab-toast-pill" aria-label="Show tab info">' +
+        '<span class="tab-toast-pill-icon">i</span>' +
+      '</button>';
+    toastHost.querySelector(".tab-toast-close").addEventListener("click", collapseTabToast);
+    toastHost.querySelector(".tab-toast-pill").addEventListener("click", expandTabToast);
     var card = toastHost.querySelector(".tab-toast-card");
     void card.offsetWidth; // force reflow so the transition plays from the initial hidden state
     card.classList.add("show");
+    toastCollapseTimer = setTimeout(collapseTabToast, TOAST_MS);
   }
 
   /* ---------------- tabs ---------------- */
