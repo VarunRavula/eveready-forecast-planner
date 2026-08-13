@@ -173,6 +173,41 @@
   .proto-frame { border: 1px solid var(--hairline-strong); border-radius: 16px; overflow: hidden; background: var(--paper-raised); box-shadow: var(--shadow-card); }
   .grid-cols { --gg: minmax(115px,0.8fr) minmax(150px,1.05fr) minmax(105px,0.8fr) minmax(135px,1fr) minmax(110px,0.85fr) minmax(90px,0.7fr) minmax(175px,1.05fr); }
   .grid-cols-sf { --gg: minmax(110px,0.75fr) minmax(150px,0.95fr) minmax(230px,1.5fr) minmax(90px,0.6fr) minmax(120px,0.8fr) minmax(150px,0.9fr); }
+  .grid-cols-ds { --gg: minmax(150px,0.9fr) minmax(250px,1.7fr) minmax(140px,0.85fr) minmax(85px,0.55fr); }
+  .grid-cols-tf { --gg: minmax(190px,1.3fr) minmax(140px,0.9fr) minmax(140px,0.9fr) minmax(130px,0.8fr); }
+  .grid-row .ds-what { font-weight: 700; color: var(--ink); font-size: 14px; }
+  .grid-row .ds-cell { font-size: 13.5px; color: var(--ink-muted); }
+
+  /* ---------- AI summary card ---------- */
+  .ai-summary {
+    position: relative; border-radius: 16px; padding: 18px 22px 20px; margin-bottom: 24px;
+    background:
+      linear-gradient(var(--paper-raised), var(--paper-raised)) padding-box,
+      linear-gradient(120deg, #7C3AED, #2F54EB) border-box;
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-card);
+  }
+  .ai-summary::before {
+    content: ""; position: absolute; inset: 0; border-radius: 16px; z-index: 0; pointer-events: none;
+    background: linear-gradient(120deg, rgba(124,58,237,0.07), rgba(47,84,235,0.05) 55%, rgba(47,84,235,0.02));
+  }
+  .ai-summary > * { position: relative; z-index: 1; }
+  .ai-summary-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .ai-summary-spark {
+    display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+    border-radius: 7px; font-size: 12px; color: #fff;
+    background: linear-gradient(135deg, #7C3AED, #2F54EB);
+  }
+  .ai-summary-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+    background: linear-gradient(90deg, #7C3AED, #2F54EB);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .ai-summary p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .ai-summary-tag {
+    display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 700; color: var(--accent-strong);
+    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.22); border-radius: 999px; padding: 5px 12px;
+  }
   .rs-col { display: flex; flex-direction: column; gap: 4px; }
   .rs-row { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
   .rs-row .rs-m { color: var(--ink-faint); min-width: 66px; }
@@ -405,10 +440,12 @@
   <div class="topnav-inner">
     <div class="brand"><img class="mark-img" alt="EasyReplenish" src="data:image/png;base64,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"><span class="ctx">Forecast Planning — Eveready</span></div>
     <nav class="tabs">
-      <button type="button" class="tab-btn active" data-view="planning">Demand Planning</button>
+      <button type="button" class="tab-btn active" data-view="datasources">Data Sources</button>
+      <button type="button" class="tab-btn" data-view="planning">Demand Planning</button>
       <button type="button" class="tab-btn" data-view="sysforecast" style="display:none;">System Forecast</button>
       <button type="button" class="tab-btn" data-view="accuracy">Forecast Accuracy</button>
       <button type="button" class="tab-btn" data-view="business">Inventory Summary</button>
+      <button type="button" class="tab-btn" data-view="transfer">Stock Imbalance Transfer</button>
     </nav>
   </div>
 </header>
@@ -417,8 +454,82 @@
 
 <div class="shell">
 
+  <!-- DATA SOURCES VIEW -->
+  <section id="view-datasources" class="view active">
+    <h1 class="page-title">Data Sources</h1>
+
+    <div class="ai-summary">
+      <div class="ai-summary-head"><span class="ai-summary-spark">✦</span><span class="ai-summary-label">AI Summary</span></div>
+      <p>All data in this tool comes from SAP. We use six types of data: sales history, stock at each depot, purchases, production, depot transactions, and product/location details. Most of this updates every day. No one types this data by hand — it comes straight from SAP.</p>
+      <div class="ai-summary-tag">Source system: SAP &nbsp;·&nbsp; Integration: FTP transfer (Option 1)</div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;"><label>What we take from SAP</label></div>
+    <div class="proto-frame">
+      <div class="grid-head grid-cols-ds">
+        <span>Data from SAP</span><span>What it is used for</span><span>Level</span><span>How often</span>
+      </div>
+      <div class="grid-list grid-cols-ds">
+        <div class="grid-row">
+          <div class="ds-what">Sales history</div>
+          <div class="ds-cell">The base for every forecast — recent sell-through, whether sales are rising or falling, and the festival effect. This is the same extract the forecast team pulls today.</div>
+          <div class="ds-cell">Product × depot × day</div>
+          <div class="ds-cell">Daily</div>
+        </div>
+        <div class="grid-row">
+          <div class="ds-what">Depot stock</div>
+          <div class="ds-cell">Stock on hand right now — used for days of cover, excess stock, and to spot depots that are short while a nearby depot is overstocked.</div>
+          <div class="ds-cell">Product × depot</div>
+          <div class="ds-cell">Daily</div>
+        </div>
+        <div class="grid-row">
+          <div class="ds-what">Procurement data</div>
+          <div class="ds-cell">Stock already ordered and on its way in, so the same stock is not ordered twice.</div>
+          <div class="ds-cell">Product × depot</div>
+          <div class="ds-cell">Daily</div>
+        </div>
+        <div class="grid-row">
+          <div class="ds-what">Production data</div>
+          <div class="ds-cell">Planned and completed production, so we can check the forecast can actually be supplied.</div>
+          <div class="ds-cell">Product × plant</div>
+          <div class="ds-cell">Daily</div>
+        </div>
+        <div class="grid-row">
+          <div class="ds-what">Depot transactions</div>
+          <div class="ds-cell">Every movement at a depot — receipts, issues, transfers and returns — so stock can be traced and imbalances explained.</div>
+          <div class="ds-cell">Product × depot × transaction</div>
+          <div class="ds-cell">Daily</div>
+        </div>
+        <div class="grid-row">
+          <div class="ds-what">Master data</div>
+          <div class="ds-cell">SKU and product-group hierarchy, plus the depot, zone and region master. Kept exactly as SAP holds it — never re-created here.</div>
+          <div class="ds-cell">Product and location master</div>
+          <div class="ds-cell">On change</div>
+        </div>
+      </div>
+      <div class="proto-note">Every screen in this prototype is built from these six extracts — nothing else is needed from Eveready.</div>
+    </div>
+
+    <div class="metrics-panel" style="margin-top:26px;">
+      <div class="mp-title">How the data reaches EasyReplenish — Option 1: FTP transfer</div>
+      <ol>
+        <li>A scheduled job in <b>SAP</b> writes the day's extracts as flat files.</li>
+        <li>The files are placed on a <b>secure FTP location</b>, controlled by Eveready's IT team.</li>
+        <li>EasyReplenish <b>collects the files</b> from that location each night.</li>
+        <li>Each file is <b>checked</b> — record counts, dates and product codes — before anything is loaded.</li>
+        <li>If a file fails the check, it is <b>reported back the same morning</b> and nothing part-loaded.</li>
+      </ol>
+    </div>
+
+    <div class="benefit-note">
+      <b>SAP stays the single source of truth.</b> EasyReplenish only reads from it — no SAP data is changed, and no master data is re-created on our side. Approved forecasts can be sent back into SAP later if Eveready wants that.
+    </div>
+
+    <p class="proto-note" style="border-top:none; padding-left:0;">Option 1 is shown here. The same data points can instead come across by a direct database extract or an API connection, if Eveready's IT team prefers — the list above does not change.</p>
+  </section>
+
   <!-- PLANNING VIEW -->
-  <section id="view-planning" class="view active">
+  <section id="view-planning" class="view">
     <div class="planning-head-row">
       <div class="planning-head-text">
         <h1 class="page-title">Demand Planning</h1>
@@ -582,6 +693,26 @@
     <div class="field" style="margin-bottom:10px;"><label>Zone by zone</label></div>
     <div class="zone-list" id="businessZoneList"></div>
     <p class="proto-note" style="border-top:none; padding-left:0;">Expand a zone to see its SKU-level breakdown. Sample data for this walkthrough — not Eveready's actual figures.</p>
+  </section>
+
+  <!-- STOCK IMBALANCE TRANSFER VIEW -->
+  <section id="view-transfer" class="view">
+    <h1 class="page-title">Stock Imbalance Transfer</h1>
+    <p class="page-sub">Patna &#8594; Dhulagarh, East region</p>
+
+    <div class="ai-summary">
+      <div class="ai-summary-head"><span class="ai-summary-spark">✦</span><span class="ai-summary-label">AI Summary</span></div>
+      <p id="tfAiSummaryText"></p>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;"><label>SKU and product details</label></div>
+    <div class="proto-frame">
+      <div class="grid-head grid-cols-tf">
+        <span>Product</span><span>Patna (now)</span><span>Dhulagarh (now)</span><span>Move this much</span>
+      </div>
+      <div class="grid-list grid-cols-tf" id="tfSkuList"></div>
+      <div class="proto-note">Sample data for this walkthrough — not Eveready's actual figures.</div>
+    </div>
   </section>
 
 </div>
@@ -1664,12 +1795,84 @@
     btnToggleZoneList.querySelector("span").textContent = zoneListVisible ? "Hide all 36 zones" : "See all 36 zones";
   });
 
+  /* ---------------- Stock Imbalance Transfer view (simplified: one fixed depot pair) ---------------- */
+  // Kept deliberately simple per user request: no region/division pickers, no all-depot
+  // list. Just one picked pair (Patna -> Dhulagarh, same East region) with a short AI
+  // summary up top and the SKU-level numbers in the table below.
+  var TF_FROM_DEPOT = "Patna", TF_TO_DEPOT = "Dhulagarh", TF_REGION = "East";
+
+  function imbalanceRows(depot, division) {
+    return zoneRows(depot).filter(function (r) {
+      return !!r.division && (division === "All" || r.division === division);
+    }).map(function (r) {
+      var recentSales = r.l30 !== null ? r.l30 : Math.round(r.baseline / 3);
+      var dailyRate = recentSales / 30;
+      var target = dailyRate * TARGET_DOI;
+      var mult = 0.25 + rand("imb|" + depot + "|" + r.code) * 2.35;
+      var stock = Math.max(0, Math.round(target * mult));
+      return {
+        code: r.code, name: r.name, division: r.division, cls: r.cls,
+        recentSales: recentSales, dailyRate: dailyRate, stock: stock,
+        doi: dailyRate > 0 ? Math.round(stock / dailyRate) : 0,
+        surplus: Math.max(0, Math.round(stock - target)),
+        deficit: Math.max(0, Math.round(target - stock))
+      };
+    });
+  }
+
+  // Every SKU where the "from" depot genuinely has more days of cover than the "to"
+  // depot, capped to the top 3 by that gap. Feeds both the AI summary (count + total
+  // units) and the table below, so the two always agree.
+  function tableTransferPairs() {
+    var fromRows = imbalanceRows(TF_FROM_DEPOT, "All");
+    var toRows = imbalanceRows(TF_TO_DEPOT, "All");
+    var toByCode = {};
+    toRows.forEach(function (r) { toByCode[r.code] = r; });
+    var all = [];
+    fromRows.forEach(function (f) {
+      var t = toByCode[f.code];
+      if (!t || f.doi <= t.doi || t.deficit <= 0 || f.surplus <= 0) return;
+      var qty = Math.max(50, Math.floor(Math.min(f.surplus, t.deficit) / 50) * 50);
+      all.push({ code: f.code, name: f.name, from: f, to: t, qty: qty, gap: f.doi - t.doi });
+    });
+    all.sort(function (a, b) { return b.gap - a.gap; });
+    return all.slice(0, 3);
+  }
+
+  function renderTransfer() {
+    var sumEl = document.getElementById("tfAiSummaryText");
+    if (!sumEl) return;
+    var tableRows = tableTransferPairs();
+
+    if (!tableRows.length) {
+      sumEl.textContent = TF_FROM_DEPOT + " and " + TF_TO_DEPOT + " (both " + TF_REGION + " region) look fine right now. No stock needs to move.";
+    } else {
+      var totalQty = tableRows.reduce(function (s, p) { return s + p.qty; }, 0);
+      sumEl.innerHTML =
+        '<b>' + TF_FROM_DEPOT + '</b> has too much stock. <b>' + TF_TO_DEPOT + '</b>, in the same ' + TF_REGION + ' region, is running low. ' +
+        'Moving stock for <b>' + tableRows.length + ' SKUs</b> — about <b>' + fmt(totalQty) + ' units</b> in total — from ' + TF_FROM_DEPOT + ' to ' + TF_TO_DEPOT +
+        ' fixes the shortage — no need to order anything new.';
+    }
+
+    var listEl = document.getElementById("tfSkuList");
+    listEl.innerHTML = tableRows.map(function (p) {
+      return '<div class="grid-row">' +
+        '<div class="ds-what">' + p.name + '<div class="sku-code">' + p.code + '</div></div>' +
+        '<div class="ds-cell">' + fmt(p.from.stock) + ' units &middot; ' + p.from.doi + ' days</div>' +
+        '<div class="ds-cell">' + fmt(p.to.stock) + ' units &middot; ' + p.to.doi + ' days</div>' +
+        '<div class="ds-cell" style="font-weight:700;color:var(--accent-strong);">' + fmt(p.qty) + ' units</div>' +
+      '</div>';
+    }).join("");
+  }
+
   /* ---------------- tab explainer toast ---------------- */
   var TAB_EXPLAINERS = {
     planning: "Here you check each product for your zone. EasyReplenish shows its forecast next to your zone's forecast. If the two numbers are very different, that product is marked for review. You can then approve EasyReplenish's number, keep your own number, or enter a new number.",
     sysforecast: "This tab shows how EasyReplenish made its forecast for each product. It shows recent sales, whether sales are going up or down, and any festival effect like Diwali. It also shows if the product is new, a top seller, or a slow seller. Every number here comes from real sales data.",
     accuracy: "This tab looks back at the last 3-month cycle, after the real sales numbers are known. For each marked product, it compares three numbers — EasyReplenish's forecast, the zone's forecast, and the number that was approved — with the actual sales. This helps you see which forecast was closer to the truth.",
-    business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target."
+    business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target.",
+    datasources: "This page shows where the data comes from. All of it is read from your SAP system — sales history, stock at each depot, purchases, production, every depot transaction, and the product master. It also shows how the data reaches us: SAP writes files each night and sends them over a secure FTP link. Nothing is typed in by hand, and nothing in SAP is changed.",
+    transfer: "This page shows one example: Patna has extra stock, and Dhulagarh, in the same region, is running low. The AI summary at the top tells you what to move. The table below shows the exact products and units."
   };
   var toastHost = document.getElementById("tabToast");
   var TOAST_MS = 15000;
@@ -1736,10 +1939,12 @@
     btn.addEventListener("click", function () {
       document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.toggle("active", b === btn); });
       var target = btn.getAttribute("data-view");
+      document.getElementById("view-datasources").classList.toggle("active", target === "datasources");
       document.getElementById("view-planning").classList.toggle("active", target === "planning");
       document.getElementById("view-sysforecast").classList.toggle("active", target === "sysforecast");
       document.getElementById("view-accuracy").classList.toggle("active", target === "accuracy");
       document.getElementById("view-business").classList.toggle("active", target === "business");
+      document.getElementById("view-transfer").classList.toggle("active", target === "transfer");
       showTabToast(target);
     });
   });
@@ -1758,7 +1963,8 @@
   renderAccuracy();
   renderSystemForecast();
   renderBusiness();
-  showTabToast("planning");
+  renderTransfer();
+  showTabToast("datasources");
 })();
 </script>
 </body>
