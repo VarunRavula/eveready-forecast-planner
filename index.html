@@ -456,12 +456,12 @@
   .tab-toast-pill:hover { border-color: var(--accent); }
   @media (max-width: 480px) { .tab-toast { left: 16px; right: 16px; max-width: none; } }
 
-  /* ---------- Split screen: presentation (left) | live prototype (right) ---------- */
+  /* ---------- Split screen: live prototype (left, default) | presentation (right) ---------- */
   html, body { height: 100%; }
   .split-shell { display: flex; height: 100vh; overflow: hidden; }
   .split-pane { position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; min-width: 0; background: var(--paper); }
-  .pane-pres { flex: 0 0 85%; border-right: 1px solid var(--hairline-strong); }
-  .pane-proto { flex: 1 1 auto; }
+  .pane-pres { flex: 0 0 15%; order: 3; }
+  .pane-proto { flex: 1 1 auto; border-right: 1px solid var(--hairline-strong); order: 1; }
   .split-shell.pres-collapsed .pane-proto { flex: 1 1 auto !important; }
   .split-shell.proto-collapsed .pane-pres { flex: 1 1 auto !important; }
   .split-pane.collapsed { flex: 0 0 44px !important; overflow: hidden; }
@@ -481,7 +481,7 @@
   .split-rail:hover .split-rail-label, .split-rail:hover .split-rail-icon { color: var(--accent-strong); }
 
   .split-divider {
-    flex: 0 0 14px; position: relative; cursor: col-resize; background: var(--hairline);
+    flex: 0 0 14px; order: 2; position: relative; cursor: col-resize; background: var(--hairline);
     display: flex; align-items: center; justify-content: center; touch-action: none;
   }
   .split-divider:hover, .split-shell.dragging .split-divider { background: var(--hairline-strong); }
@@ -971,7 +971,7 @@
     </div>
     <button type="button" class="split-rail" id="railPres" aria-label="Expand presentation">
       <span class="split-rail-label">Presentation</span>
-      <span class="split-rail-icon">&rsaquo;</span>
+      <span class="split-rail-icon">&lsaquo;</span>
     </button>
   </aside>
 
@@ -982,12 +982,12 @@
       <circle cx="2" cy="23" r="1.4"></circle><circle cx="6" cy="23" r="1.4"></circle>
     </svg>
     <div class="split-toggle" role="group" aria-label="Collapse panes">
-      <button type="button" class="split-toggle-btn" id="collapsePresBtn" aria-label="Collapse presentation">&lsaquo;</button>
-      <button type="button" class="split-toggle-btn" id="collapseProtoBtn" aria-label="Collapse prototype">&rsaquo;</button>
+      <button type="button" class="split-toggle-btn" id="collapseProtoBtn" aria-label="Collapse prototype">&lsaquo;</button>
+      <button type="button" class="split-toggle-btn" id="collapsePresBtn" aria-label="Collapse presentation">&rsaquo;</button>
     </div>
     <div class="split-hint" aria-hidden="true">
-      <span>&larr; Presentation</span>
-      <span>Prototype &rarr;</span>
+      <span>&larr; Prototype</span>
+      <span>Presentation &rarr;</span>
     </div>
   </div>
 
@@ -1288,7 +1288,7 @@
     </div>
     <button type="button" class="split-rail" id="railProto" aria-label="Expand prototype">
       <span class="split-rail-label">Prototype</span>
-      <span class="split-rail-icon">&lsaquo;</span>
+      <span class="split-rail-icon">&rsaquo;</span>
     </button>
   </section>
 </div>
@@ -2578,16 +2578,16 @@
     var collapseProtoBtn = document.getElementById("collapseProtoBtn");
     var railPres = document.getElementById("railPres");
     var railProto = document.getElementById("railProto");
-    var lastPresPct = 42;
+    var lastPresPct = 15;
     var isDragging = false, dragStartX = 0, dragStartWidth = 0, shellWidth = 0;
 
     function updateChevrons() {
       var presCollapsed = panePres.classList.contains("collapsed");
       var protoCollapsed = paneProto.classList.contains("collapsed");
-      collapsePresBtn.innerHTML = presCollapsed ? "&rsaquo;" : "&lsaquo;";
+      collapsePresBtn.innerHTML = presCollapsed ? "&lsaquo;" : "&rsaquo;";
       collapsePresBtn.setAttribute("aria-label", presCollapsed ? "Expand presentation" : "Collapse presentation");
       collapsePresBtn.style.display = protoCollapsed ? "none" : "";
-      collapseProtoBtn.innerHTML = protoCollapsed ? "&lsaquo;" : "&rsaquo;";
+      collapseProtoBtn.innerHTML = protoCollapsed ? "&rsaquo;" : "&lsaquo;";
       collapseProtoBtn.setAttribute("aria-label", protoCollapsed ? "Expand prototype" : "Collapse prototype");
       collapseProtoBtn.style.display = presCollapsed ? "none" : "";
     }
@@ -2622,8 +2622,8 @@
     });
     divider.addEventListener("pointermove", function (e) {
       if (!isDragging) return;
-      var pct = ((dragStartWidth + (e.clientX - dragStartX)) / shellWidth) * 100;
-      pct = Math.max(22, Math.min(90, pct));
+      var pct = ((dragStartWidth - (e.clientX - dragStartX)) / shellWidth) * 100;
+      pct = Math.max(10, Math.min(78, pct));
       panePres.style.flex = "0 0 " + pct + "%";
       lastPresPct = pct;
     });
