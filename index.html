@@ -484,6 +484,12 @@
   }
   .split-divider:hover, .split-shell.dragging .split-divider { background: var(--hairline-strong); }
   .split-shell.pres-collapsed .split-divider, .split-shell.proto-collapsed .split-divider { cursor: default; }
+  .split-grip {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+    fill: var(--ink-faint);
+  }
+  .split-divider:hover .split-grip, .split-shell.dragging .split-grip { fill: var(--accent); }
+  .split-shell.pres-collapsed .split-grip, .split-shell.proto-collapsed .split-grip { display: none; }
   .split-toggle {
     position: absolute; top: 96px; left: 50%; transform: translateX(-50%); z-index: 6;
     display: flex; align-items: stretch; border-radius: 999px; overflow: hidden;
@@ -816,6 +822,11 @@
   </aside>
 
   <div class="split-divider" id="splitDivider" role="separator" aria-orientation="vertical" aria-label="Resize panes">
+    <svg class="split-grip" aria-hidden="true" width="8" height="26" viewBox="0 0 8 26">
+      <circle cx="2" cy="3" r="1.4"></circle><circle cx="6" cy="3" r="1.4"></circle>
+      <circle cx="2" cy="13" r="1.4"></circle><circle cx="6" cy="13" r="1.4"></circle>
+      <circle cx="2" cy="23" r="1.4"></circle><circle cx="6" cy="23" r="1.4"></circle>
+    </svg>
     <div class="split-toggle" role="group" aria-label="Collapse panes">
       <button type="button" class="split-toggle-btn" id="collapsePresBtn" aria-label="Collapse presentation">&lsaquo;</button>
       <button type="button" class="split-toggle-btn" id="collapseProtoBtn" aria-label="Collapse prototype">&rsaquo;</button>
@@ -2281,7 +2292,10 @@
   };
   var toastHost = document.getElementById("tabToast");
   var TOAST_MS = 15000;
+  var INTRO_TOAST_MS = 5000;
+  var INTRO_TOAST_TEXT = "This screen is split in two: the presentation is on the left, the live prototype is on the right. Drag the middle divider to resize either side, or use the button on it to collapse one side.";
   var toastCollapseTimer = null;
+  var currentToastMs = TOAST_MS;
 
   // Auto-closing never fully removes the toast — it collapses into a small pill
   // on the right that the user can click to bring the explanation back at any time.
@@ -2296,6 +2310,7 @@
     var ring = toastHost.querySelector(".ring-progress");
     if (!ring) return;
     ring.classList.remove("animate");
+    ring.style.animationDuration = currentToastMs + "ms";
     void ring.getBoundingClientRect(); // force reflow so the animation restarts from 0
     ring.classList.add("animate");
   }
@@ -2309,12 +2324,11 @@
       card.classList.add("show");
     }
     restartRing();
-    toastCollapseTimer = setTimeout(collapseTabToast, TOAST_MS);
+    toastCollapseTimer = setTimeout(collapseTabToast, currentToastMs);
   }
 
-  function showTabToast(view) {
-    var text = TAB_EXPLAINERS[view];
-    if (!text) return;
+  function showToastMessage(text, durationMs) {
+    currentToastMs = durationMs;
     if (toastCollapseTimer) clearTimeout(toastCollapseTimer);
     toastHost.classList.remove("collapsed");
     toastHost.innerHTML =
@@ -2323,7 +2337,7 @@
         '<button type="button" class="tab-toast-close" aria-label="Collapse">' +
           '<svg class="tab-toast-ring" viewBox="0 0 36 36" width="26" height="26">' +
             '<circle class="ring-bg" cx="18" cy="18" r="15.5"></circle>' +
-            '<circle class="ring-progress animate" cx="18" cy="18" r="15.5"></circle>' +
+            '<circle class="ring-progress animate" cx="18" cy="18" r="15.5" style="animation-duration:' + durationMs + 'ms;"></circle>' +
           '</svg>' +
           '<span class="tab-toast-x">&times;</span>' +
         '</button>' +
@@ -2336,7 +2350,13 @@
     var card = toastHost.querySelector(".tab-toast-card");
     void card.offsetWidth; // force reflow so the transition plays from the initial hidden state
     card.classList.add("show");
-    toastCollapseTimer = setTimeout(collapseTabToast, TOAST_MS);
+    toastCollapseTimer = setTimeout(collapseTabToast, durationMs);
+  }
+
+  function showTabToast(view) {
+    var text = TAB_EXPLAINERS[view];
+    if (!text) return;
+    showToastMessage(text, TOAST_MS);
   }
 
   /* ---------------- menu + tabs ---------------- */
@@ -2486,6 +2506,7 @@
   renderBusiness();
   renderTransfer();
   setView("datasources");
+  showToastMessage(INTRO_TOAST_TEXT, INTRO_TOAST_MS); // orientation toast wins over the datasources one on first load
 })();
 </script>
 </body>
