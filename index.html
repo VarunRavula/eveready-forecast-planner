@@ -2511,7 +2511,7 @@
     divider.addEventListener("pointermove", function (e) {
       if (!isDragging) return;
       var pct = ((dragStartWidth + (e.clientX - dragStartX)) / shellWidth) * 100;
-      pct = Math.max(22, Math.min(72, pct));
+      pct = Math.max(22, Math.min(90, pct));
       panePres.style.flex = "0 0 " + pct + "%";
       lastPresPct = pct;
     });
