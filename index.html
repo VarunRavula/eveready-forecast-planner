@@ -454,6 +454,61 @@
   .tab-toast-pill:hover { border-color: var(--accent); }
   @media (max-width: 480px) { .tab-toast { left: 16px; right: 16px; max-width: none; } }
 
+  /* ---------- Split screen: presentation (left) | live prototype (right) ---------- */
+  html, body { height: 100%; }
+  .split-shell { display: flex; height: 100vh; overflow: hidden; }
+  .split-pane { position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; min-width: 0; background: var(--paper); }
+  .pane-pres { flex: 0 0 42%; border-right: 1px solid var(--hairline-strong); }
+  .pane-proto { flex: 1 1 auto; }
+  .split-shell.pres-collapsed .pane-proto { flex: 1 1 auto !important; }
+  .split-shell.proto-collapsed .pane-pres { flex: 1 1 auto !important; }
+  .split-pane.collapsed { flex: 0 0 44px !important; overflow: hidden; }
+  .split-pane.collapsed .split-pane-inner { display: none; }
+  .split-pane-inner { padding: 32px 36px 60px; }
+  .pane-proto .split-pane-inner { padding: 0; }
+  .pane-pres .split-pane-inner { container-type: inline-size; }
+
+  .split-rail {
+    display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; cursor: pointer; background: var(--paper-tint); border: none; width: 100%; padding: 0;
+  }
+  .split-pane.collapsed .split-rail { display: flex; }
+  .split-rail:hover { background: var(--accent-soft); }
+  .split-rail-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12.5px; font-weight: 800; letter-spacing: 0.04em; color: var(--ink-muted); }
+  .split-rail-icon { font-size: 14px; color: var(--ink-faint); }
+  .split-rail:hover .split-rail-label, .split-rail:hover .split-rail-icon { color: var(--accent-strong); }
+
+  .split-divider {
+    flex: 0 0 14px; position: relative; cursor: col-resize; background: var(--hairline);
+    display: flex; align-items: center; justify-content: center; touch-action: none;
+  }
+  .split-divider:hover, .split-shell.dragging .split-divider { background: var(--hairline-strong); }
+  .split-shell.pres-collapsed .split-divider, .split-shell.proto-collapsed .split-divider { cursor: default; }
+  .split-toggle {
+    position: absolute; top: 96px; left: 50%; transform: translateX(-50%); z-index: 6;
+    display: flex; align-items: stretch; border-radius: 999px; overflow: hidden;
+    background: var(--paper-raised); border: 1.5px solid var(--accent-soft-strong);
+    box-shadow: var(--shadow-card), 0 0 0 3px var(--accent-soft);
+  }
+  .split-toggle-btn {
+    width: 32px; height: 42px; border: none; background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+    font-size: 18px; font-weight: 700; color: var(--ink-muted); line-height: 1;
+  }
+  .split-toggle-btn + .split-toggle-btn { border-left: 1px solid var(--hairline-strong); }
+  .split-toggle-btn:hover { color: var(--accent-strong); background: var(--accent-soft); }
+  .split-shell.dragging { user-select: none; }
+  .split-shell.dragging .split-pane { pointer-events: none; }
+
+  @media (max-width: 900px) {
+    .split-shell { flex-direction: column; height: auto; }
+    .pane-pres, .pane-proto { flex: 1 1 auto !important; width: 100% !important; height: auto; overflow: visible; border-right: none; border-bottom: 1px solid var(--hairline-strong); }
+    .split-divider { display: none; }
+    .split-pane.collapsed { flex: 0 0 auto !important; min-height: 56px; }
+    .split-rail { position: static; flex-direction: row; height: 56px; }
+    .split-rail-label { writing-mode: horizontal-tb; transform: none; }
+  }
+
   /* ---------- Presentation tab ---------- */
   .pres-slide { display: none; }
   .pres-slide.active { display: block; }
@@ -468,7 +523,12 @@
     border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 5px 11px;
   }
   .pres-section-label { font-size: 22px; font-weight: 800; color: var(--accent); margin: 0 0 20px; letter-spacing: -0.005em; line-height: 1.25; }
+  .pres-header { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; }
+  .pres-header img { height: 20px; width: auto; }
+  .pres-header span { font-size: 12.5px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.01em; }
+  h1.pres-slide-title { font-size: 21px; font-weight: 800; letter-spacing: -0.01em; margin: 0 0 18px; color: var(--ink); }
   .pres-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @container (max-width: 640px) { .pres-cols { grid-template-columns: 1fr; } }
   @media (max-width: 720px) { .pres-cols { grid-template-columns: 1fr; } }
   .pres-col {
     border: 1px solid var(--hairline-strong); border-radius: 14px; background: var(--paper-raised);
@@ -481,6 +541,14 @@
   ul.pres-prose li::before {
     content: "\2713"; position: absolute; left: 0; top: 1px; width: 16px; height: 16px;
     border-radius: 50%; background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
+  ol.pres-agenda { margin: 0; padding: 0; list-style: none; counter-reset: pres-agenda-counter; }
+  ol.pres-agenda li { position: relative; padding-left: 34px; margin-top: 14px; font-size: 14.5px; font-weight: 700; line-height: 1.4; counter-increment: pres-agenda-counter; }
+  ol.pres-agenda li:first-child { margin-top: 0; }
+  ol.pres-agenda li::before {
+    content: counter(pres-agenda-counter); position: absolute; left: 0; top: -1px; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-size: 12px; font-weight: 800;
     display: flex; align-items: center; justify-content: center; line-height: 1;
   }
   .pres-method-card { padding: 18px 20px; }
@@ -516,6 +584,246 @@
 </head>
 <body>
 
+<div class="split-shell" id="splitShell">
+  <aside class="split-pane pane-pres" id="panePres">
+    <div class="split-pane-inner">
+      <section id="view-presentation">
+        <div class="pres-header"><img src="data:image/png;base64,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" alt="EasyReplenish"><span>EasyReplenish for Eveready</span></div>
+
+        <div class="pres-slide active" data-pres-slide="1">
+          <h1 class="pres-slide-title">What we’ll cover today</h1>
+
+          <div class="pres-section-label">Agenda</div>
+
+          <div class="pres-col">
+            <ol class="pres-agenda">
+              <li>Forecasting &mdash; the business case</li>
+              <li>Forecasting &mdash; the technical model</li>
+              <li>Reorder planning</li>
+              <li>Stock imbalance &amp; transfer planning</li>
+              <li>Integration &amp; data requirements</li>
+            </ol>
+          </div>
+
+          <div class="pres-disclaimer"><span class="pres-note-tag">Tip</span><span>This presentation and the live prototype are shown side by side &mdash; the prototype is on the right. Feel free to explore it as we go.</span></div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="2">
+          <h1 class="pres-slide-title">Forecasting &mdash; the business case</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Built from your SAP data</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Recent sales</span>
+              <span class="pres-tag">Same season, last year</span>
+              <span class="pres-tag">Festivals &amp; sale days</span>
+              <span class="pres-tag">New / popular / slow-moving</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">Two methods, for two different businesses</div>
+
+          <div class="pres-cols">
+            <div class="pres-col">
+              <h2>Batteries &mdash; a steady, trend-based method</h2>
+              <ul class="pres-prose">
+                <li>High volume &mdash; even a small forecast error means a lot of excess or shortfall stock</li>
+                <li>Demand varies by zone &mdash; driven by local conditions and channel mix</li>
+                <li>Different baseline demand across zones</li>
+                <li>A simple trend-based method gets this right consistently &mdash; manual effort doesn't</li>
+              </ul>
+            </div>
+            <div class="pres-col">
+              <h2>Lighting &mdash; a smarter, event-aware method</h2>
+              <ul class="pres-prose">
+                <li>Close to 500 products, with new ones launching often</li>
+                <li>Sourced from China &mdash; long wait if the forecast is wrong</li>
+                <li>Demand jumps sharply around festivals like Diwali</li>
+                <li>New products have no sales history to learn from</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="3">
+          <h1 class="pres-slide-title">Forecasting &mdash; the technical model</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Segment before picking a model</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Batteries &mdash; mature demand</span>
+              <span class="pres-tag">Lighting &mdash; fast-fashion-adjacent</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">Method per segment</div>
+
+          <div class="pres-cols">
+            <div class="pres-col pres-method-card">
+              <div class="pres-seg-name">Stable, high-volume (most Batteries)</div>
+              <div class="pres-method-name">Classical time-series</div>
+              <div class="pres-method-tech">Exponential smoothing (Holt-Winters / ETS)</div>
+              <div class="pres-method-example">E.g. AA batteries sell ~40,000 units/month, steady for 3 years straight.</div>
+            </div>
+            <div class="pres-col pres-method-card">
+              <div class="pres-seg-name">Seasonal, high-volume (festival Lighting)</div>
+              <div class="pres-method-name">Time-series + event modelling</div>
+              <div class="pres-method-tech">Gradient-boosted trees (LightGBM/XGBoost-style)</div>
+              <div class="pres-method-example">E.g. LED string lights sell 5x more in the 3 weeks before Diwali.</div>
+            </div>
+            <div class="pres-col pres-method-card">
+              <div class="pres-seg-name">Long-tail slow movers</div>
+              <div class="pres-method-name">Intermittent-demand method</div>
+              <div class="pres-method-tech">Croston's method / TSB</div>
+              <div class="pres-method-example">E.g. A niche torch model sells only 20-30 units, once every 10-15 days.</div>
+            </div>
+            <div class="pres-col pres-method-card">
+              <div class="pres-seg-name">New launches, zero history</div>
+              <div class="pres-method-name">Cold-start, comparable-SKU method</div>
+              <div class="pres-method-tech">Nearest-neighbour on category, price tier, channel mix</div>
+              <div class="pres-method-example">E.g. A new 9W LED bulb has no sales history &mdash; it copies last year's closest-priced launch's first-3-month curve.</div>
+            </div>
+          </div>
+
+          <div class="pres-disclaimer"><span class="pres-note-tag">Note</span><span>These are directional. Once run on your real SAP data, the model per segment may change based on how each actually performs.</span></div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="4">
+          <h1 class="pres-slide-title">Reorder planning</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Beyond the forecast</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Current stock</span>
+              <span class="pres-tag">Open purchase orders</span>
+              <span class="pres-tag">Vendor lead time</span>
+              <span class="pres-tag">Approved forecast</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">From forecast to action &mdash; reorder planning</div>
+
+          <div class="pres-cols">
+            <div class="pres-col">
+              <h2>What it does</h2>
+              <ul class="pres-prose">
+                <li>Combines the approved forecast with current depot stock, any open POs already in transit, and vendor lead time</li>
+                <li>Recommends exactly what to reorder, how much, and by when &mdash; not just a number to interpret</li>
+                <li>Flags urgency automatically &mdash; Order Now / Order Soon / Healthy &mdash; so nothing falls through the cracks</li>
+                <li>Works across zones and depots at once, not one spreadsheet per person</li>
+              </ul>
+            </div>
+            <div class="pres-col">
+              <h2>Why it matters</h2>
+              <ul class="pres-prose">
+                <li>Removes the manual step of translating a forecast into a purchase decision</li>
+                <li>Closes the gap where the forecast was right but nobody reordered in time</li>
+                <li>The same accuracy gains from better forecasting flow straight into production and procurement planning</li>
+                <li>Bulk actions mean approving reorder quantities takes minutes, not days, even across thousands of SKUs and depots</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="5">
+          <h1 class="pres-slide-title">Stock imbalance &amp; transfer planning</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Depot-to-depot, same region</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Depot-level stock</span>
+              <span class="pres-tag">Same-region transfers</span>
+              <span class="pres-tag">Excess vs. shortage</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">When one depot has excess and another falls short</div>
+
+          <div class="pres-cols">
+            <div class="pres-col">
+              <h2>What it does</h2>
+              <ul class="pres-prose">
+                <li>Watches stock levels at every depot, not just the zone total</li>
+                <li>Flags when one depot is sitting on excess while a nearby depot in the same region is running short</li>
+                <li>Recommends a specific transfer &mdash; which depot, which SKU, how many units &mdash; not just a report</li>
+                <li>Already live in this prototype &mdash; see the Stock Imbalance Transfer tab (Patna &rarr; Dhulagarh, East region)</li>
+              </ul>
+            </div>
+            <div class="pres-col">
+              <h2>Why it matters</h2>
+              <ul class="pres-prose">
+                <li>Today, if a depot runs short, nobody knows where the nearest surplus is or how quickly it can move</li>
+                <li>Turns "stock is stuck somewhere" into one specific, actionable transfer</li>
+                <li>Reduces excess inventory and stockouts at the same time, without raising a new purchase order</li>
+                <li>Uses the same stock and depot data the forecast already tracks &mdash; no separate system needed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="6">
+          <h1 class="pres-slide-title">Integration &amp; data requirements</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">All from SAP</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Sales history</span>
+              <span class="pres-tag">Depot stock</span>
+              <span class="pres-tag">Procurement</span>
+              <span class="pres-tag">Production</span>
+              <span class="pres-tag">Depot transactions</span>
+              <span class="pres-tag">Master data</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">What we need from you, and how it flows</div>
+
+          <div class="pres-cols">
+            <div class="pres-col">
+              <h2>What we need from SAP</h2>
+              <ul class="pres-prose">
+                <li>Sales history (primary sales) &mdash; the base every forecast is built from</li>
+                <li>Depot/go-down stock levels, kept current</li>
+                <li>Procurement and production data</li>
+                <li>Depot-level transactions, plus product and location master data</li>
+              </ul>
+            </div>
+            <div class="pres-col">
+              <h2>How integration works</h2>
+              <ul class="pres-prose">
+                <li>Option 1: a nightly FTP transfer &mdash; SAP writes the extract, we read it</li>
+                <li>No changes inside SAP, no new access beyond a read-only file drop</li>
+                <li>Nothing typed in by hand, no manual step between the two systems</li>
+                <li>Same six data points already shown live in this prototype's Data Sources tab</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-nav">
+          <button type="button" class="btn" id="presPrev" disabled>&larr; Previous</button>
+          <div class="pres-dots">
+            <button type="button" class="pres-dot active" data-pres-goto="1" aria-label="Slide 1"></button>
+            <button type="button" class="pres-dot" data-pres-goto="2" aria-label="Slide 2"></button>
+            <button type="button" class="pres-dot" data-pres-goto="3" aria-label="Slide 3"></button>
+            <button type="button" class="pres-dot" data-pres-goto="4" aria-label="Slide 4"></button>
+            <button type="button" class="pres-dot" data-pres-goto="5" aria-label="Slide 5"></button>
+            <button type="button" class="pres-dot" data-pres-goto="6" aria-label="Slide 6"></button>
+          </div>
+          <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
+        </div>
+      </section>
+    </div>
+    <button type="button" class="split-rail" id="railPres" aria-label="Expand presentation">
+      <span class="split-rail-label">Presentation</span>
+      <span class="split-rail-icon">&rsaquo;</span>
+    </button>
+  </aside>
+
+  <div class="split-divider" id="splitDivider" role="separator" aria-orientation="vertical" aria-label="Resize panes">
+    <div class="split-toggle" role="group" aria-label="Collapse panes">
+      <button type="button" class="split-toggle-btn" id="collapsePresBtn" aria-label="Collapse presentation">&lsaquo;</button>
+      <button type="button" class="split-toggle-btn" id="collapseProtoBtn" aria-label="Collapse prototype">&rsaquo;</button>
+    </div>
+  </div>
+
+  <section class="split-pane pane-proto" id="panePrototype">
+    <div class="split-pane-inner">
 <header class="topnav">
   <div class="topnav-inner">
     <div class="brand"><img class="mark-img" alt="EasyReplenish" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAAyCAYAAACtfjXHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAACMdSURBVHgB7X0JYBzFlfarHkk+8DEGhyskHiUEmwBGBrPhCh6RJQs/YMkE9jf8WSRxxUk2kRycP7AENDLhT0JIJPNng01IJPkHTI5FsnMAYWON10CyP2w8BhMTJ6CxMRanLd+yNF1v36ujZ3oOSaMVa0H6s1s9011dXVVd9eq9773qETBKQMQI7aK0nW724YzNImm2BG0baYsLIZIQIECAvx6QsAjT1khbN44c3bQ1G8ETIECA9ytokEdp68LRR2sgQAIEeJ+BBzVtHfjuozUQIAECjF2I4SakgVxPuxj4OQsPvQcBnt+BsHqThG07ETZuR9hzAGH3QQkC6aLxADOmIe0FfPJjDlzwsRCcf1JosFsmaWsiDqQNAgQIMKYwLMFBQqOZdg35zq17BWHNJoSVz0oSEghC0oaohAXv1U2k1J/5mOS9ThOeKOCy2SVwzTmlcP6skkK3byHhsRgCBAgwZjCo4CCBwdpFF20V2efWvQJw55MS1r0sjbDgzOhPhuCwAiItLMCcs+e1NsLXfHJmCXz/+iPgw9OdfEVhL0wlCZBeCBAgwGFHQcFRSGj09gEsfRLh3vVuHkGAMG0cwAUnOvDhIxEiRzoQngBK09hNZsu2tyW8sN2FTdtSsHu/0U4AfVrIoovGw1evmAhTJ+YIkEB4BAgwRjCY4NgAWUIjuQvgb1dI2LpT+jSKacRbfHaugPmnOUpoDAdP/SkFq546BI+sP8QZeSYOCxnWOjpvC8OHPpDDgSRIcMyBAAECHFbkFRyW0+jcDFB9sj62cQfAp1ZIj+y0QuP2TzvwjxeESLMYNs/qA2shK544CPc/fiDNg9CehUfrV6bBqZEc7iPgPAIEOMzIGe0kNGpp18qfQ/8EcMenkISHUEJjDwkNy2HMPl7Az+tKYMaRIxMY2Xj1bRcW3LkLXn3T9cyfqUSe/rzxKBIepdnJF5PwaIEAAQIcFvhGvYmdYF4jsrEH4Ix708SnR3TSdu1ZIfhOlTNiLWMw3LFyD/zwV/s93mQKcSRP3nM0nHC0T/NgnmNOEK4eIMDhQTYh0UhbhD9wXEZaaEjPO3L7p0Pww4Whd0VoMJZeOwWWXDlZ35vcuHv3uXDV7W/Bnv0yMxkTt80QIECAwwJvGjfaRq39vvE1o22ok5ARn4EFM0v06K0YRKYBRMv9x26+ahJsf2MAfraWNA+SF6+9PgDNq3ZD4w3TMpNVU5mjpHXEoVjEDkbG064v+3gfH9Fn7HnffjxpOrFp7w+vTu2GiL8B0nVWGD++F9rmvOfq6lz001YJMmL7KaagDuJXJ2EsoqI54jiyXiJWAIp2SNzcBqMA5+SmepRYrQYux2GDvBe2fKMTRhGZ+n9j5omtO3Ndrfz5rsdS6vNtl/h5B/a4LHiQ9kV2tdbP0J/y3ONNdVNh88uH4I+v9Kv7tq7eDX/3iQlw9mnjIavMcSgWA7KrDzDCQhGtIOQgNUEKmOynigpxSCqmVrDPh+t7iJ/Cfmynb3XwPoBwU91YamJvVBs4cEg/a/qL1AAHEa5+mppIxKnjrQYMdcIj5yRhjEMCTSYIEYSxDyHkWlLmuR/Sf5yHFd8OQ+Jr/3XuziVBJNR6Mh47PO2vhFGGMlWytQ3Gxh3SH6hFGscFHxXwnQUl8MVobpRn09rihUbtGXrLhylHOPDArdPTAWS0LXtwV3ayqIk3KQosMAQKRDNQ1MBRUkSfANPrSH7oQ6oV8N2xzQ4XrCpponHsNxS6nvSX9g63zTw69D0BbjcsXN8IYxzCe4ign+1YxdzmKBWuHIVpfO5lEKqH0YAhIIR+yO9Kv7UcR044OQds8YANjwP4Erlbn/hSGW3jlNDI5jfirwC0/cF/Pa9NiYT1xqbIrOn+82yiNH4KBgUToosXTlXCw6Ht358/AL9//mB2sgYYCahV1TNTe30g45weOFaeqH4o0EHxXpjIhgWtaHEVUZhqqmqbvU4DUoCw/U8J2ZjzP58a+9ySKvEYl/MpDmgUagLTDa+eQxJGAZLpQDUt8pPlphj9fmtVh6rsE9No4N9TXQKf/ZuhvSd1/6L3LBz+eT7AeTMAntkG8G/dADVnauHBOGc5wO9f1Z8bL0wfHwzXVU2B1kd7iSTVptK/Pr0fzp49ITNJDejFd8VCCQ0zgFrIGF7ta11hdQz6k3L1bFxSkoT3CcwTRfORu9lXqDUS6iAfcZmAFtV0rAqUVkdNpdQ02UCax2p45JNxGJPQo1CZW54aOQaRWNwLFd9torZuNBNUEmFgdMxgRz0sIdCoXDj62nKJMVMi2Sd+88XSYWXQ9Fsdhs7awy0XEKdmRFE5aRQVx5EAyhjjt8wjRvNBHVRWyETJBpssV/7tJGjr6FU6XcdvdsOX/+FImDLJcwjxUv9IUa5Z9CZWblkRckTCvWtaHP6aoFUp1Rao9CsSGg+eE89K1YkLf0dtK/9A2sc0rYQp7a9GjoRb+u8Az7DIU66t4BhG4uYYEaRtNDMRJ1OSgMSSUSGjHSJ6pJr49MzokAhxYXTBoy8KIwQTojHiNr5PWkbswrTQYLApYoXGr/8E8IN/J+3hUW3CNF8GReHT5x7hEbV79qRg819y/CFRKBZmMuJ+5qpm/msDV1kKywcUBBGi1OzL+KPmhJSSFoUxC09BH/PWikJicRISX40rDWSUoMSmslTeRY0D8qx8HS4qH9D7f3oC4JebAVYtzE3D3Ic1ZRjNlwIcFXLhuecOwHAwc+ZE+ASZJhxFunevDnf/7VP74BMVEzOTFVcHJj0VIYqG3xje+pqCiHWHYc94cn8B6VQYJhdyWIBMSBlKwL3HtQ95fQNd3w81DkhVD8mP2xUJEM5qWF6e9NLduLmWd7yCx5XYC+6EOLSVF+5wtRvYGKzOOJIkF2tcffLGlzGyB4MDCSHTRMegyn91V5jSV9O0d7ojMayjb9yt4Dhx+PlF8fzXdIRDblm167oQQuh1H5vvuQ5LLuuIptCpElJG6Cu1LbWrcJbB4wuSefNC5RSjxzuMySDaQe2zr8IBNsfINJMuiVLRS3msg/V1hd2X56wgE06GQ5ItOtK8fv/5pDp+9n1RupbMfhnmHkXZbYQS8kbZ89kgghRSql4GTmdeAVIRC4M7rpo0iXlaLHA9ISkduQ423R7PSU+mipYeWuPwtI1ZsYjjpqrI0VDByiO5rXdTRqvhL9+KQ5FgwXE6jABsolgvyja6fdNJuWnYhOF0FqyFNJxLZs3tr8Iv1rwNQ2H+/Okw987J6vMnZk+E367fozrGaz392UnnQZEwhKiyhUPUiCNS5WK7ws7egWbcI2tBr7PRvVY/tXnk8xSi/rUYCqcSWo5L5lxPAsMZgEYckA2KQ+FjaD5xAAu4LbBoSxvtm2D5yUnSOWuoxFFXDQ5KWXZgKQzK74hmKkyNLhibI25l5lldXDAu2EGArmaRbauB6M2b/soustdlg+AAPT3bsYtK/3dlI1Q/kaSOXwmdlyT9F44Pu+C2ks0IXDe4fE0dhNy4GAi1koCM6tIZy9IRUSLt68XFHU3y8QVNeeoMRklPu9rzIbqylqaiZspyqiYm9aMT2ryph0/+eCs9x8Ww/obOPHdopkk8wswXjdE2efZ9TfRcWmlAzjPuOu2oY7GcGmh25v7fmHzuS7lldbGW7nkta366rDIJ2Sbg7LvrBbUdCcJpHueGurMpYf7xb2wl1r4uV4Aw0SFVwzmOmCpPvL0Z3FQD2v5lGXEUDeIjX2uRr3y7qPVfLBgjUCSsiWJRyK267Gm/i7brBiBNY++whMbxx5fBTZ8/3vv+QfKw2GX8f/pzjmelOJesiQ1SHhXuMRKKx1d3VYi9qW66vNZmqV2YNnPzXJBmFOl2QUNPJDsLkRKtyJ2UWUdhST3jLhbGluK1Qyha9QXY5LmHuY9Lura2O3/dazcQNwG1mLZESNs4K55OgGnPgxhC5cBQlTDkKGg5k8ipy1VdXZQwRh/DnhC03lHQ7m9QsTPOBqj+TY6GmNF0nLZKDDhdHOCnvgujIOlia5IWZAwufrQGcjPSShRYN3oeRB9qpL+t2pWP1rWkJhHvRggz6DYdcN6Pc++BRoxqdz0Lti5Q5lvasZpRHCaeG+HM5ursbBxNXwrttst9BA4JDZK4HNdB/JJjy2X9zVpbpP4lXFgLkVi6H0hA65HWxZWNVNQG1YwmxCD9jJQB2uB85NaivGU5guOF7RIWtffBD9b2F7zImigWX4/mpnl5p1+4MHnKJkrs9u6ctMccU5Zz7HMkNFh4WJxwbAnYF//s3ZOjHxQZy2HoQB2/QU3slsMte6N62+XbSvQ+kptFH8+qU+2sRp2om1TeZdSr6+grzy5JNfjVf4w46Db6rv/yNlJpsVrfXw2wbkT3OsqzkrKkDduokL1GSGi2ffnJcUoXtyODsp4KpQdrClQyavqXtkQcEfOXX/csL4CjAEo++7uoYM8VpuNbqLLtvkRXrqNOh1Et8LSHgPKvw7KBcl0XWOZ5OWiGp4wezXOrjL7MXj5nBrXfLjrA19ZRR+UBlNTahCkGYgubOVAgs3wIXfgQzfIkdHQOnK4XHbmUZu0zaDTMoe/X0f22mtHP0rkZoq0RXybCmG1aySRhKGbQ8+rFUGgZSreOGjwGTNZbIaRMYidnYLLbVHgxNFklrmgmMw8btMBQ/XQ3pSEvjHshCtLahGigg0k+T9+XQjLmTdGOo+um8tVxjGHTKKvp+2JK0EB3TQhfe2GDT/gMgZxIroXLD8Kr70hY9QzC7A86cP5Mf5JME0UVku5+25MAb+zTpkmvUQYy07CJwuTpi5v6oHFpOUyY4ED3ywfhiEklcOGndFk3vbAfvvj5LcRjuMpEuXy+P/CDvSuO9k/Dvr2p7GIXHwSGRilAZeOTRGZ1kI84pkfofuzqL7kmwT3HxXHJG0tJutdw54bvHdvie/QNPTTw3Q3UMcI6C1lNpsliaDGchHQr0XQZoRXPK2D5SZkzeRwWbW5CNxSGH5KZki55J5U46g17zhc0eemvoKg3deDsyW6Hdb7zjondcFULkJXgzHDJg5LRQBXUJavclFSCSQ1XPdO24SPnx710C7siZKc3aMpIpdhK/Mwc6Ky0PSCp6lL9WCcpzV16hsXy0PzHatw1l3gCSAkW4WkmrAauhFJy/XYuUPkopfDijmWUZgOlCpugvbBz0GUPT7r+ntZiLKUs0PNs9A4KXiwp50C8LpmRJEGCIk514sikaZTJNHLHc6yQL14ItUtKfxbUthMmLqB8vF6PZ9/XLjC1gbkTkyoCZzVXwLOLE+lHAB7Xlivp+jgMPWI1TJpUlsGm22IZCeKq351yVwW82OjTALVA0maK1lxhK5Y6C+DFWCJdflgmPnorPQ8y/YwEBDhQC1pAD4kcVpCXt9tIzW3v+HX4bBNFFZKS/uQFqkW3XqfCAiM7gpRNFMYppx4BZ501GT4wvRTGk/A4c+4kL82ppx0BNbXH5pgoFlpHNi/8kYNMkcOAnrN8MU9a/zPfLP8nzMRekDq955gYCYxyFho554jToPw6wfZeFFPBr92FhciIp3DyCD/mNX54kt8sGDhIHRJ2YVotjsINL0R9aW58sUIowljfmcrfSaRoMjMJWk7G0RQa8ZJtRPa8AiHRTRXupg7XQURhrbUhhB6ocXlowG8Luyx0vRhFFgpNGUIjjc5L4mhmOU7vOrDAn8DMkFoX3A2/qqq1QsMDEaJU7mUmoaoDzcqVkA/5dH/SNngAWzJYtYtfaGjQMdRh2qYf4LWQ1XZKUfR0H14PU+cvKxGidPHqtPdOUNM6Pj5RChN8l47B8xByQxGtjBoTqhCB/+JtiTxHhVGL0JS3KVNoePUA0Z5mgpBVlWHznaxOcIW9TstvIeeVqNxR+PV+mVjwEBQNNlE40Iu5jblzNdF5zLFlcNGxR6rPO3b0w1FHlcCaznfg/618A76y5ASfiWLBmkjmKwb/K9CdXM18nq9bj4+0tmwHgnm30IhuKNESdcbmTGUIB+HsQl4fY+5D00QrfOEvTVBGLHzLIJ6Stjm9eNOL91JXawQr+FB5TuJeGtc1octarUJtOuWDNqS82dOEy6LWQoS2+Lnku6kfNsGq81vyZFCh76OvHV/mxPsWPhbxJfK858iDqcJQsaf780EzINVuENckeWcQ70hH9orZmFUgw1vke2hVlkliY59aP55jhti7pMh0FNa8wmkqnREyRmAIHKIfkjae5JAS25CI/slBcxz6hMgyVlx0mQwXGSLlDjzlrhlQ6jRB4tbk4DfWXVmYFSMFI0eFTCKKNLkEw1++kUdwoIrSZFWCtQ8LJjpHsvKVTZQVy3fAZ648Om+aFfftgCd/sxP6+qQSLNkmisWOHYc8jmPWx8Znn05CMTAy3PsMTi18c1K7dxpGCPKSlMIRkQFIRdglJ1RwneXpsiZAlKvpIA9wJrj4CKWFVnHIbcXP/zlOh9vgvhPb896nv78FysZ9WXVoPSvVYG13zLpm2fOixYAiQMllW5HMzsKbjsAMVrswR0+PYMWlTkOdddW5+VVYwYIgPV8eGsBXAMqEdouC6kdacbOmOlqzJ+JrDjMrg+7Jgz2DpC2/Li2W+856t0LIHBKmXcLWJNJlkW2I2mbjZ5DuEpgxjI0OmnULrS2mxVA+SDUxCHtv+i58A1OqumJ+B/emW+Mw+1ssaCO2+MAaYErWilPuIs1NtMtS0VlIiPh626BxHOl7U08KD7fvW8HhYfaHQuotXLw25NW30qYKmx/Djfa0YG2DNYqe1/ph+vTchXF8znpYJk8OQezO8oJ5vbSlT/PK1BGZ78hCEoqA7Zp2rJA7FkYcWccxGM7EehLqUXbHpcixKyC9AMHMgKqX+Cil75fH8R+7l1LCO5Qharsfd0gJNPBllFyxMWBtYflJbb57stZx44skeHhhoup4VIYDLISaQtc9X+uiIuyMEoDL8hecB4MUZgEfsJsUHzonrk5d80wL5V3v6WNIBOHC9YmcMHPiN9iPLdI+CZFuXbRrB1GkNRvPFKT9Vn9xACCtNBcGx29c/KidUa3i4YPlBXKdzCKSFmCex9TYR47+gKZNMuLizDTTmy6qqVs6Ajk/mKX0zOoCs75ljaXyFmVdT2aYFF2UJiJ8RcEK5Jiffmx2TvlGi3zx64tzsx2sYBol9M+FFGqVRGvgwwX35HWQEUD1YeX40ebAM3/kReWah+DArZHgsqtfgvt/NCvvue9+Z5v3OduLko0t7II17wSZ9bEJ2ac3QjEwKrHq5MhCY4SRoze/WS/0+1kNe4ceF69sR4GexaM6Yva7l79fHsNF3W10PEZprtVDWHpLtKiYEfrT6nxuy1S54iS/AEDZrjSldL9kc6WJyL8au2qPJlEO+OrMV3QURoHN11kePrcBr3lmHpshVhxQ8X+M1V1n+PiLRyqT4u/jng6hvSDiCiSbzEpi5B6WcrPvTQj5JixvJR1Ajtruw8UdEW4jLzQ0O9DL0wRkDstBykWvCZa10qmOPBJJX7qUMGXO4PfIY+IjPsGughlioMlMUZjh/vaXV6QlWBZYm6j4ZiU1Zy2lq6H8ZtgBbjQeVGuHTr4zAptvX5B5X/NAVAocZJEbGsPLUziHCW4iH2ly6RmlcP8TB3V4N3EcT2/uh/NOLhtWZqxBXHbJ875jNy3KLxA6O96GrrX6WfD5a/7XMQXzffYP+2Df7gEdx0HCozI6NTtJAopAJn/BrUakVfEBYEveahZSWi5BzUhCOG2knpIgFlSeQ+TJCPGLlWu8fpFK5eajI0NrsaG7AQ7JKJm1Vea9r15ZUcdH+AXHA6fF4YZNcco4amch5/pNNWQbR5V7X40QIsUKwUaMmIClXAcb1tHRDaoMJgYDxpU20lf/7EZ8hFDEr+SeRx4IqnvnRYNwFIVLNKxUTCJLYfgQJf6S2bkgpnUOX7ZILnLiVtBaGuTOJIEQhyJhhcYQJhUvGiEixdFMmjJK8kxQWocQCAXMCW2KxJC9eqfeSc/WqWFCnN3AlssBduvPikXhpVhc39f0bY/3zJ93StXFNBYOoz4Z4N4Szzxw6odLYOqENEH6+HPDFxw3Xf9SzrE/bzmgeIyeHvVKHBWDsaOnn46ng7gKaSQWa36x09M2pkwKwdwzJ2UniUORwLQJi26x+gbHdQwMNGSog0QyHZyDzX5S06nfbp/K0A9EE6Kdkpn+Rd1NQK48uo4lpDZFFm2OKC+LvxZN7E4zPAUTajGt8Ki5ppf6TbzQ7YSdMAUYSylLqD18XgIW/i7GMQ9o3IWUrB6zVsZSJiS8RJXRFRBKUqy9xqFYGL3GvlSoIKSsyAiWow8ykScvy3P4n6ykcgmoFqbktEVhhIv1zHL49ArUPHC0a194Vhg6vqQOollxbGnpIXqJjg6NI4eg95e2KoFh3OQhKJnhTX4SreNI3TpUYJEbD34XPP22GEtF8bZJyOAIeE3IwvPLjNuTXK3xA7DnwNChlQ8/9IbSOLLBWgWTo2tWv6O2rq5e+NNLB+j561J+btHgJoriQX7xDtiXCuXRNpIjf2mx1vdCxUaOum7UuspAPTaa2fN4QnjAo7Hsi5JNpIU4Ajs9I4F3/Cq/bLDWAaRGW/cHiIiqFQ8aiTkuWB84U8fQMYV6zPi+ZchBRt7bfXiqF61qPYqFhHZj+OhBgqLZdz4bHDVaneV1UXkjGLNIwCChvHS60abVmmNJZ1YCE2Gs/br+q/vbwSMLVOJ6iK6KFLxZtDVcyOtihOngQ01FcNo0qDQQ32nlNBFG+S1i1CZivaEQtulnYiYNdmFbONZY1btC2nQKwNObUBQ3e1r9lB5++tWBl545Dh74tX7T+N79pBH8aj8suWpywUx4cLNWUSxYYHwuT8xGJh56+E2td0lNRl1++VHZSVZDkTArGfQXqRb7VDu37I3QXs110nIearWZFHoPPEVshLund5qOLTyrlbmILDiLX69H6VYJu1ZRzX4Z5sCi7gh9bWX1GUqBBU/SO0eEq+wbiJruxLdIFnLR0qzWwiHNaR+C5QpkEwzWBqb6Im/wkUEb8RkL19epwC0bZg0yguNCaZPlXyo74aquJKgQbU7gVIiQ24ULuxYwB+LldeWTUZHickqqF2lo1R1zsuM0bAwl5RKBS9c0Q6m7jNLoPKo7wk4fNEuw3hjV+El4/Ip2f8VsZnk0b+IpsPLBdjpRY4ZJGLG/i4RDnc9kIWHhSKiRKeIPOItz76+EZ25KZDZeeklA4VmB+5FATboqrU6KHI1D9TSBIq8cOv1brWTqRDDk1mV7T1wpqg3xrAUulvg0L63lDD1h+UwVUZypwmBXmyc4zj25FM6bVQq/+2O/MhG+99O9sHDehOyfKPDAYeQcZ1EshjJRWCA9TILDxm7MPXOyFwuSgWFFumVCeM/b66pELGKVdmikzWL7KIUDNmCqDdiUGHDjUBKy3gQWQ434lZ4ZdG4rKadTSRJVSJmKCrDj3noa0uaAE3IaKc95wN6TAeI4vvAyz5wJSh4Wh1K19BTD6kJUGm6sUF1kqn+ZCJXUC45y5JJIVdJ1g2obkEHT4RCvRSSzBK9+itpYNKStG2jAv+9aBz+t7DTtt4DaqovKPBU111Eh+t1uvOJfk6atw0Q2hsG0LLJgwAlMKteB/6kIWzoaSQ0w4DTApZ1xtaakHyLIbZMuL9czj3C0ww8h75DGAapHaB7dIIL6ZdxUFmctXNDGQmy3utrFiA3x0bFXTjMru5mNNxwtkoQ6ygyKMlvjyFyIlj1kQ6fdXUtaeQ2SLkHdpluc+s04JYpLdMOUUYXqN2ADC8gt+5JfsKhMjXu7EMehOGAjLrS5OnytR0kC/j1WYw9H7YklV06CK2Nv665PGV5/9074WdP0HFcoB3ZxteeeNRmKQbQyPKiJwrjxxi0et8HI465tG5mZ4s3MImNRuRdXJnyphBcp6M0ILcclcclb5LLEepsTZVOrlGxpr6c2FW4dzTgdmTdUII0CU9w5jddFhzpU0Z9qS/izBDM+mja4b2Z7waqwa/b6F1ZSwnphw5eFWAZDQYDtKEIMNQTGDTRBXymvq4nYWEbq9GyyxJWX5WeVCbyqq5LK3CF4QJrpjuoyQ8+mqmdimoATcRAHs1yIZvJU7S3T6hOKecIn2JTc4MyXwuOfactbtYxVcTmzOGsd0VWVJEC6KFlEcw9qcId5BWqmtDHkeRJDobq87TLEq0ykdXejae6c89o0U7NVVvQKmR5h0AqhdQ1HpVr0J8C6a4xUSxKL4WtLxxgwOjZFVaKgREjHAeBQctCHTBWiCTIEx7kfL4MbL5kID/xyn5oL/vhyP8R+1Avf+/KRvgxYA5j7wEwYbdxzz3bo2XHIG83sdckjaJpgJBDWy68WH6HpqBm6reEMvK6cr4AfWIxLenbTbEWeFfYqeCp/L826ZEsPxNi8wPrtHBPR4OvBfJxnsC901/JSeUPSeUaG2vH6B/LSwPIT24esDogqW1Dlgv3x7M6hrrEhCOm1koOATZZrnl5A/bWD6hYxKnIYytTqXu0GZOGxsKvSGUBe8xNV5obV3vTNqM5iozKhOi+J5xbIikzVgZPoupUQCrUKfvu3J7ZVPtQubhM8flW8cOWszC9QL/1zCeUYXcnCnrQ1cboeX2btoO4bdB9ox/XXt+Vm4EWJDO7E1HavnX3yJFCxNPlL+vzXWsgV24kc0q+eL7+BzV6jBA5N9uRpO5hqgeTXfSafNBqMJ0CHeJGPrrrIiDkZGr4MaQTx7Fhtv7Nn5e9uflP9xomd+RdfPZW2YUemjggrVvQQZ/Ka15+P/+A4WPWTj6sgsQywtlEHYwENPVH9IdQLLUcX5Rr28IXuCrI7wuCW9MIRhTmNHNzwAnEGYq2ehlWD1ZHgaIPDDUWAlkT0l1Qy9x0c/rTCla9YAU41ScIv5pfrcx1h6IMK4BiMMmqX7PUrowEmQdOxTEngYK/stSeHG6fcXQHikB54qZJktmny341swREB7bv3JMP2N1NwccPr6hfVwHg2rps/Ge646SgYbTBPsmJ5D3loXjdiEOC448fB/aTRZGkbSdoqg5+AJNywqQsQNZ/CCrx0y4fiN8YctODotjMFSpmEX80vhwBjFj7CwgxEn/rPhOhPvnE0TJkolHtW/ThSx264oHYbaSIpGC0wEcqchhUajEmTQvDd5hPzmiiB0CAs2sxmQ9TEALBMb3vPCY1s4LvwgswAo46cSBvzK/A+cu2Uj5TBT/7PsfCho0PeT0Hy6/ui/5CEu37wFmx/feQCRGkZZJpc9j+ehz+/dMATGpOnlCivy8yZOeHly6iMbRAAnAHv5UCaR5XuyDifsYEMX1aAsY6Cwp0EP5ssFZnHWMO45n/vUEJDSRxp4ltof8Wnp8AVF0+Fv/G/RLggnntuH3TFd8Ev1+yEvXtSlpFSOJ7Nkx/NzKdpJEhozIEAStsgF2e3JlSVEzkOPzqtEt6LMByH5WnoTxIDU2VMo2SQc9wJuyBDeJxwTAn88p9PgHtX7oSVj+704itYR+58vBdW/3qX+r2Tkz86HmadOA4+eGwpTDa/f7KPNIsdr/XDjp5D8B/kwt23x9VUstRRgnaWYe8JB4VlEaGMBGT60v/a4cowSds6HUtMbTxl4pCelLGLvl50y66zEaM46Ps4AowFDO6m0b/L6hMeFvwL8rd8uwee3bDfi/XQryXRoepWE1HR+eY9Gt55/mxeymPBcSC8IC5PgBdDCQ2ON4EAAQIcdgyLh0J+KSy/jTsP/n/iAHQ81gtr/20PaREpI0QKC4q0gOF3cJTA5VVHQWVlGM6cWzCAjDmNBggQIMCYwbAJbLPUm8m4SKE0z/5hvxIgL205qIQIr4jdu9tVgoRXtU6mbeZJE+D448qg8sIwnDRzYj6TxIK1iyZD1gYIEOC9Co7z4Nf247uPDsx6tVyAAAHe43gXBUgXmh/hCRAgwPsURoDwsu5uHDm6aYshDv8NywECBDi8GLUgPdSmRRS0B4ZffR8BPx/Sm7GtA+0piQcRoAECvPfwnzl3lYTUZpFpAAAAAElFTkSuQmCC"><span class="ctx">Forecast Planning — Eveready</span></div>
@@ -523,7 +831,6 @@
       <button type="button" class="menu-btn active" data-menu="datasources">Data Sources</button>
       <button type="button" class="menu-btn" data-menu="planning">Demand Planning</button>
       <button type="button" class="menu-btn" data-menu="transfer">Stock Imbalance Transfer</button>
-      <button type="button" class="menu-btn" data-menu="presentation">Presentation</button>
     </nav>
   </div>
   <div class="subnav" id="subnav" style="display:none;">
@@ -805,100 +1112,17 @@
     </div>
   </section>
 
-  <!-- PRESENTATION VIEW -->
-  <section id="view-presentation" class="view">
-    <h1 class="page-title">How will EasyReplenish forecast for Eveready</h1>
-    <p class="page-sub">A two-slide summary &mdash; business explanation, then technical detail.</p>
-
-    <div class="pres-slide active" data-pres-slide="1">
-      <div class="pres-data-strip">
-        <span class="pres-lbl">Built from your SAP data</span>
-        <div class="pres-tags">
-          <span class="pres-tag">Recent sales</span>
-          <span class="pres-tag">Same season, last year</span>
-          <span class="pres-tag">Festivals &amp; sale days</span>
-          <span class="pres-tag">New / popular / slow-moving</span>
-        </div>
-      </div>
-
-      <div class="pres-section-label">Two methods, for two different businesses</div>
-
-      <div class="pres-cols">
-        <div class="pres-col">
-          <h2>Batteries &mdash; a steady, trend-based method</h2>
-          <ul class="pres-prose">
-            <li>High volume &mdash; even a small forecast error means a lot of excess or shortfall stock</li>
-            <li>Demand varies by zone &mdash; driven by local conditions and channel mix</li>
-            <li>Different baseline demand across zones</li>
-            <li>A simple trend-based method gets this right consistently &mdash; manual effort doesn't</li>
-          </ul>
-        </div>
-        <div class="pres-col">
-          <h2>Lighting &mdash; a smarter, event-aware method</h2>
-          <ul class="pres-prose">
-            <li>Close to 500 products, with new ones launching often</li>
-            <li>Sourced from China &mdash; long wait if the forecast is wrong</li>
-            <li>Demand jumps sharply around festivals like Diwali</li>
-            <li>New products have no sales history to learn from</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="pres-slide" data-pres-slide="2">
-      <div class="pres-data-strip">
-        <span class="pres-lbl">Segment before picking a model</span>
-        <div class="pres-tags">
-          <span class="pres-tag">Batteries &mdash; mature demand</span>
-          <span class="pres-tag">Lighting &mdash; fast-fashion-adjacent</span>
-        </div>
-      </div>
-
-      <div class="pres-section-label">Method per segment</div>
-
-      <div class="pres-cols">
-        <div class="pres-col pres-method-card">
-          <div class="pres-seg-name">Stable, high-volume (most Batteries)</div>
-          <div class="pres-method-name">Classical time-series</div>
-          <div class="pres-method-tech">Exponential smoothing (Holt-Winters / ETS)</div>
-          <div class="pres-method-example">E.g. AA batteries sell ~40,000 units/month, steady for 3 years straight.</div>
-        </div>
-        <div class="pres-col pres-method-card">
-          <div class="pres-seg-name">Seasonal, high-volume (festival Lighting)</div>
-          <div class="pres-method-name">Time-series + event modelling</div>
-          <div class="pres-method-tech">Gradient-boosted trees (LightGBM/XGBoost-style)</div>
-          <div class="pres-method-example">E.g. LED string lights sell 5x more in the 3 weeks before Diwali.</div>
-        </div>
-        <div class="pres-col pres-method-card">
-          <div class="pres-seg-name">Long-tail slow movers</div>
-          <div class="pres-method-name">Intermittent-demand method</div>
-          <div class="pres-method-tech">Croston's method / TSB</div>
-          <div class="pres-method-example">E.g. A niche torch model sells only 20-30 units, once every 10-15 days.</div>
-        </div>
-        <div class="pres-col pres-method-card">
-          <div class="pres-seg-name">New launches, zero history</div>
-          <div class="pres-method-name">Cold-start, comparable-SKU method</div>
-          <div class="pres-method-tech">Nearest-neighbour on category, price tier, channel mix</div>
-          <div class="pres-method-example">E.g. A new 9W LED bulb has no sales history &mdash; it copies last year's closest-priced launch's first-3-month curve.</div>
-        </div>
-      </div>
-
-      <div class="pres-disclaimer"><span class="pres-note-tag">Note</span><span>These are directional. Once run on your real SAP data, the model per segment may change based on how each actually performs.</span></div>
-    </div>
-
-    <div class="pres-nav">
-      <button type="button" class="btn" id="presPrev" disabled>&larr; Previous</button>
-      <div class="pres-dots">
-        <button type="button" class="pres-dot active" data-pres-goto="1" aria-label="Slide 1"></button>
-        <button type="button" class="pres-dot" data-pres-goto="2" aria-label="Slide 2"></button>
-      </div>
-      <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
-    </div>
-  </section>
 
 </div>
 
 <footer class="appfoot"><p>Forecast Planning prototype — Eveready Industries × EasyReplenish</p></footer>
+    </div>
+    <button type="button" class="split-rail" id="railProto" aria-label="Expand prototype">
+      <span class="split-rail-label">Prototype</span>
+      <span class="split-rail-icon">&lsaquo;</span>
+    </button>
+  </section>
+</div>
 
 <script>
 (function () {
@@ -2053,8 +2277,7 @@
     accuracy: "This tab looks back at the last 3-month cycle, after the real sales numbers are known. For each marked product, it compares three numbers — EasyReplenish's forecast, the zone's forecast, and the number that was approved — with the actual sales. This helps you see which forecast was closer to the truth.",
     business: "This tab shows your current stock. It is not about forecasts. For each zone, it shows recent sales, how much stock you have today, how many days that stock will last, and how much extra stock you have above your 45-day target.",
     datasources: "This page shows where the data comes from. All of it is read from your SAP system — sales history, stock at each depot, purchases, production, every depot transaction, and the product master. It also shows how the data reaches us: SAP writes files each night and sends them over a secure FTP link. Nothing is typed in by hand, and nothing in SAP is changed.",
-    transfer: "This page shows one example: Patna has extra stock, and Dhulagarh, in the same region, is running low. The AI summary at the top tells you what to move. The table below shows the exact products and units.",
-    presentation: "This page is a short 2-slide summary of the forecasting approach — the business explanation, then the technical detail. Use Previous and Next at the bottom to move between the two."
+    transfer: "This page shows one example: Patna has extra stock, and Dhulagarh, in the same region, is running low. The AI summary at the top tells you what to move. The table below shows the exact products and units."
   };
   var toastHost = document.getElementById("tabToast");
   var TOAST_MS = 15000;
@@ -2120,7 +2343,7 @@
   // Two levels: the menu bar picks a section, and the "Demand Planning" section keeps the
   // original four tabs as a second row. The other two sections are single pages, so the
   // sub-tab row is hidden for them (and the toast moves up to sit under the shorter header).
-  var VIEWS = ["planning", "sysforecast", "accuracy", "business", "datasources", "transfer", "presentation"];
+  var VIEWS = ["planning", "sysforecast", "accuracy", "business", "datasources", "transfer"];
   var subnav = document.getElementById("subnav");
   var activeSubView = "planning";
 
@@ -2175,6 +2398,76 @@
       d.addEventListener("click", function () { presGo(i); });
     });
     presRender();
+  })();
+
+  /* ---------------- Split screen: presentation | prototype ---------------- */
+  (function () {
+    var splitShell = document.getElementById("splitShell");
+    var panePres = document.getElementById("panePres");
+    var paneProto = document.getElementById("panePrototype");
+    var divider = document.getElementById("splitDivider");
+    var collapsePresBtn = document.getElementById("collapsePresBtn");
+    var collapseProtoBtn = document.getElementById("collapseProtoBtn");
+    var railPres = document.getElementById("railPres");
+    var railProto = document.getElementById("railProto");
+    var lastPresPct = 42;
+    var isDragging = false, dragStartX = 0, dragStartWidth = 0, shellWidth = 0;
+
+    function updateChevrons() {
+      var presCollapsed = panePres.classList.contains("collapsed");
+      var protoCollapsed = paneProto.classList.contains("collapsed");
+      collapsePresBtn.innerHTML = presCollapsed ? "&rsaquo;" : "&lsaquo;";
+      collapsePresBtn.setAttribute("aria-label", presCollapsed ? "Expand presentation" : "Collapse presentation");
+      collapsePresBtn.style.display = protoCollapsed ? "none" : "";
+      collapseProtoBtn.innerHTML = protoCollapsed ? "&lsaquo;" : "&rsaquo;";
+      collapseProtoBtn.setAttribute("aria-label", protoCollapsed ? "Expand prototype" : "Collapse prototype");
+      collapseProtoBtn.style.display = presCollapsed ? "none" : "";
+    }
+
+    function setPresCollapsed(collapsed) {
+      panePres.classList.toggle("collapsed", collapsed);
+      splitShell.classList.toggle("pres-collapsed", collapsed);
+      if (!collapsed) panePres.style.flex = "0 0 " + lastPresPct + "%";
+      updateChevrons();
+    }
+    function setProtoCollapsed(collapsed) {
+      paneProto.classList.toggle("collapsed", collapsed);
+      splitShell.classList.toggle("proto-collapsed", collapsed);
+      if (!collapsed) panePres.style.flex = "0 0 " + lastPresPct + "%";
+      updateChevrons();
+    }
+
+    collapsePresBtn.addEventListener("click", function () { setPresCollapsed(!panePres.classList.contains("collapsed")); });
+    collapseProtoBtn.addEventListener("click", function () { setProtoCollapsed(!paneProto.classList.contains("collapsed")); });
+    railPres.addEventListener("click", function () { setPresCollapsed(false); });
+    railProto.addEventListener("click", function () { setProtoCollapsed(false); });
+
+    divider.addEventListener("pointerdown", function (e) {
+      if (e.target.closest(".split-toggle-btn")) return;
+      if (panePres.classList.contains("collapsed") || paneProto.classList.contains("collapsed")) return;
+      isDragging = true;
+      splitShell.classList.add("dragging");
+      dragStartX = e.clientX;
+      shellWidth = splitShell.getBoundingClientRect().width;
+      dragStartWidth = panePres.getBoundingClientRect().width;
+      divider.setPointerCapture(e.pointerId);
+    });
+    divider.addEventListener("pointermove", function (e) {
+      if (!isDragging) return;
+      var pct = ((dragStartWidth + (e.clientX - dragStartX)) / shellWidth) * 100;
+      pct = Math.max(22, Math.min(72, pct));
+      panePres.style.flex = "0 0 " + pct + "%";
+      lastPresPct = pct;
+    });
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      splitShell.classList.remove("dragging");
+    }
+    divider.addEventListener("pointerup", endDrag);
+    divider.addEventListener("pointercancel", endDrag);
+
+    updateChevrons();
   })();
 
   // default Planning selection: East / North East 1 / Guwahati
