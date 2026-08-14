@@ -604,6 +604,24 @@
     font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--warn);
     flex: 0 0 auto;
   }
+  .pres-flow-strip {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 22px;
+    padding: 14px 16px; border-radius: 12px; background: var(--paper-tint); border: 1px solid var(--hairline);
+  }
+  .pres-flow-step {
+    font-size: 12.5px; font-weight: 700; color: var(--ink); background: #fff;
+    border: 1px solid var(--hairline-strong); border-radius: 8px; padding: 6px 10px;
+  }
+  .pres-flow-arrow { color: var(--ink-faint); font-weight: 700; }
+  table.pres-table { width: 100%; border-collapse: collapse; margin: 0 0 4px; font-size: 13px; }
+  .pres-table th {
+    text-align: left; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--ink-faint); padding: 0 12px 10px;
+  }
+  .pres-table th:first-child, .pres-table td:first-child { padding-left: 0; }
+  .pres-table td { padding: 14px 12px; border-top: 1px solid var(--hairline); vertical-align: top; line-height: 1.4; }
+  .pres-table td.pres-table-module { font-weight: 700; }
+  .pres-table td.pres-table-total { font-weight: 800; color: var(--ink); white-space: nowrap; }
   .pres-nav {
     display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 30px;
     padding-top: 22px; border-top: 1px solid var(--hairline);
@@ -648,6 +666,8 @@
               <li>Reorder planning</li>
               <li>Stock imbalance &amp; transfer planning</li>
               <li>Integration &amp; data requirements</li>
+              <li>Security &amp; deployment</li>
+              <li>Commercials</li>
             </ol>
           </div>
 
@@ -842,6 +862,96 @@
           </div>
         </div>
 
+        <div class="pres-slide" data-pres-slide="8">
+          <h1 class="pres-slide-title">Security &amp; deployment</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Enterprise infrastructure</span>
+            <div class="pres-tags">
+              <span class="pres-tag">Google Cloud &middot; BigQuery</span>
+              <span class="pres-tag">AWS</span>
+              <span class="pres-tag">Confidential by default</span>
+              <span class="pres-tag">Deletion within 10 days on request</span>
+            </div>
+          </div>
+
+          <div class="pres-flow-strip">
+            <span class="pres-flow-step">Your systems (EasyEcom / Unicommerce / Vinculum)</span>
+            <span class="pres-flow-arrow">&rarr;</span>
+            <span class="pres-flow-step">Secure ingestion</span>
+            <span class="pres-flow-arrow">&rarr;</span>
+            <span class="pres-flow-step">Google Cloud &middot; BigQuery</span>
+            <span class="pres-flow-arrow">&rarr;</span>
+            <span class="pres-flow-step">EasyReplenish analytics</span>
+            <span class="pres-flow-arrow">&rarr;</span>
+            <span class="pres-flow-step">App on AWS</span>
+          </div>
+
+          <div class="pres-section-label">Your data stays yours &mdash; secure, transparent, enterprise-grade</div>
+
+          <div class="pres-cols">
+            <div class="pres-col">
+              <h2>How your data is handled</h2>
+              <ul class="pres-prose">
+                <li>We ingest only what's needed &mdash; sales, inventory, SKU, POs and warehouse data from EasyEcom, Unicommerce, Vinculum or your other systems</li>
+                <li>Stored and processed on Google Cloud (BigQuery); the application itself runs on AWS &mdash; established enterprise infrastructure, not an unmanaged local system</li>
+                <li>Used only for the agreed services &mdash; forecasting, replenishment, inventory optimization, reporting. Never sold, never repurposed</li>
+                <li>Treated as confidential end to end; access limited to the people who need it to deliver your service</li>
+              </ul>
+            </div>
+            <div class="pres-col">
+              <h2>Your control, on your terms</h2>
+              <ul class="pres-prose">
+                <li>You own your data, full stop &mdash; our access is limited to what's needed to deliver the service</li>
+                <li>Deletion within 10 calendar days of termination or a written request, subject to legal/backup retention</li>
+                <li>Transparent by design &mdash; you can request how your data is stored, processed and accessed</li>
+                <li>Same infrastructure principles enterprise data teams already trust: GCP + AWS, not a black box</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="9">
+          <h1 class="pres-slide-title">Commercials</h1>
+          <div class="pres-data-strip">
+            <span class="pres-lbl">Pilot scope</span>
+            <div class="pres-tags">
+              <span class="pres-tag">36 zones</span>
+              <span class="pres-tag">28 godowns</span>
+              <span class="pres-tag">4 admin licenses included</span>
+            </div>
+          </div>
+
+          <div class="pres-section-label">Investment for the pilot scope</div>
+
+          <table class="pres-table">
+            <thead>
+              <tr><th>Module</th><th>Pricing</th><th>Licenses</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pres-table-module">Sales &amp; Demand Forecasting</td>
+                <td>&#8377;10,000 / zone</td>
+                <td>3 users per zone &mdash; Zonal Manager, Zone Head &amp; Demand Planner</td>
+                <td class="pres-table-total">&#8377;3,60,000</td>
+              </tr>
+              <tr>
+                <td class="pres-table-module">Stock Balancing &amp; Transfer</td>
+                <td>&#8377;10,000 / godown</td>
+                <td>2 users per godown</td>
+                <td class="pres-table-total">&#8377;2,80,000</td>
+              </tr>
+              <tr>
+                <td class="pres-table-module">Production &amp; Procurement</td>
+                <td>To be finalized</td>
+                <td>Scope to be discussed and mutually defined</td>
+                <td class="pres-table-total">TBD</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="pres-disclaimer"><span class="pres-note-tag">Total</span><span>&#8377;6,40,000 for Sales &amp; Demand Forecasting + Stock Balancing &amp; Transfer. Production &amp; Procurement will be scoped and priced once workflows, users and requirements are confirmed.</span></div>
+        </div>
+
         <div class="pres-nav">
           <button type="button" class="btn" id="presPrev" disabled>&larr; Previous</button>
           <div class="pres-dots">
@@ -852,6 +962,8 @@
             <button type="button" class="pres-dot" data-pres-goto="5" aria-label="Slide 5"></button>
             <button type="button" class="pres-dot" data-pres-goto="6" aria-label="Slide 6"></button>
             <button type="button" class="pres-dot" data-pres-goto="7" aria-label="Slide 7"></button>
+            <button type="button" class="pres-dot" data-pres-goto="8" aria-label="Slide 8"></button>
+            <button type="button" class="pres-dot" data-pres-goto="9" aria-label="Slide 9"></button>
           </div>
           <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
         </div>
