@@ -458,7 +458,7 @@
   html, body { height: 100%; }
   .split-shell { display: flex; height: 100vh; overflow: hidden; }
   .split-pane { position: relative; height: 100%; overflow-y: auto; overflow-x: hidden; min-width: 0; background: var(--paper); }
-  .pane-pres { flex: 0 0 42%; border-right: 1px solid var(--hairline-strong); }
+  .pane-pres { flex: 0 0 70%; border-right: 1px solid var(--hairline-strong); }
   .pane-proto { flex: 1 1 auto; }
   .split-shell.pres-collapsed .pane-proto { flex: 1 1 auto !important; }
   .split-shell.proto-collapsed .pane-pres { flex: 1 1 auto !important; }
@@ -485,7 +485,7 @@
   .split-divider:hover, .split-shell.dragging .split-divider { background: var(--hairline-strong); }
   .split-shell.pres-collapsed .split-divider, .split-shell.proto-collapsed .split-divider { cursor: default; }
   .split-grip {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+    position: absolute; top: 150px; left: 50%; transform: translateX(-50%); pointer-events: none;
     fill: var(--ink-faint);
   }
   .split-divider:hover .split-grip, .split-shell.dragging .split-grip { fill: var(--accent); }
@@ -505,12 +505,12 @@
   .split-toggle-btn:hover { color: var(--accent-strong); background: var(--accent-soft); }
 
   .split-hint {
-    position: absolute; top: 146px; left: 50%; transform: translate(-50%, -4px);
+    position: absolute; top: 184px; left: 50%; transform: translate(-50%, -4px);
     display: flex; align-items: center; gap: 12px; white-space: nowrap; pointer-events: none; z-index: 5;
-    background: var(--paper-raised); border: 1px solid var(--hairline-strong); border-radius: 999px;
-    padding: 4px 12px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.01em; color: var(--ink-faint);
-    box-shadow: var(--shadow-card); opacity: 0;
-    animation: splitHintFade 5.5s ease-in-out forwards;
+    background: var(--accent); border: 1px solid var(--accent-strong); border-radius: 999px;
+    padding: 5px 14px; font-size: 11px; font-weight: 800; letter-spacing: 0.01em; color: #fff;
+    box-shadow: var(--shadow-card), 0 0 0 3px var(--accent-soft-strong); opacity: 0;
+    animation: splitHintFade 8s ease-in-out forwards;
   }
   @keyframes splitHintFade {
     0% { opacity: 0; transform: translate(-50%, -4px); }
