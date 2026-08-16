@@ -633,6 +633,83 @@
   .pres-dot.active { background: var(--accent); }
   .pres-nav .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .pres-nav .btn:disabled:hover { border-color: var(--hairline-strong); color: inherit; }
+
+  /* ---- pv2: "Eveready, in numbers" + "What better forecasting is worth" slides ---- */
+  .pv2-section-label { font-size: 15px; font-weight: 700; color: var(--accent); margin: 0 0 16px; letter-spacing: -0.005em; }
+  .pv2-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .pv2-stat-tile {
+    border: 1px solid var(--hairline-strong); border-radius: 13px; background: var(--paper);
+    box-shadow: var(--shadow-card); padding: 14px 16px;
+  }
+  .pv2-stat-label { font-size: 11.5px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+  .pv2-stat-value { font-size: 24px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; line-height: 1.1; }
+  .pv2-stat-sub { font-size: 12px; color: var(--ink-muted); margin-top: 6px; line-height: 1.4; }
+  .pv2-stat-delta { font-size: 12.5px; font-weight: 700; margin-top: 6px; color: var(--success); }
+
+  .pv2-peer-card {
+    border: 1px solid var(--hairline-strong); border-radius: 13px; background: var(--paper);
+    box-shadow: var(--shadow-card); padding: 14px 20px 16px;
+  }
+  .pv2-peer-title { font-size: 12.5px; font-weight: 800; color: var(--ink-muted); margin-bottom: 10px; }
+  .pv2-peer-title span { color: var(--ink-faint); font-weight: 600; }
+  .pv2-peer-table { width: auto; border-collapse: collapse; margin: 0 auto; }
+  .pv2-peer-table th {
+    text-align: left; font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--ink-faint); padding: 0 28px 8px 0; border-bottom: 1px solid var(--hairline-strong); white-space: nowrap;
+  }
+  .pv2-peer-table th.num, .pv2-peer-table td.num { text-align: right; padding-right: 0; }
+  .pv2-peer-table td {
+    font-size: 13px; color: var(--ink-muted); font-weight: 600; padding: 9px 28px 9px 0;
+    border-bottom: 1px solid var(--hairline); white-space: nowrap;
+  }
+  .pv2-peer-table tr:last-child td { border-bottom: none; }
+  .pv2-peer-table td.num { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pv2-peer-table tr.hi td { color: var(--accent-strong); font-weight: 800; background: var(--accent-soft); }
+  .pv2-peer-table tr.hi td.num { color: var(--accent-strong); }
+  .pv2-peer-table tr.hi td:first-child { border-radius: 8px 0 0 8px; }
+  .pv2-peer-table tr.hi td:last-child { border-radius: 0 8px 8px 0; }
+  .pv2-trend { font-variant-numeric: tabular-nums; color: var(--ink-faint); font-weight: 600; }
+  .pv2-trend .pv2-now { color: var(--ink); font-weight: 800; }
+  tr.hi .pv2-trend { color: rgba(36, 68, 192, 0.55); }
+  tr.hi .pv2-trend .pv2-now { color: var(--accent-strong); }
+  .pv2-fy-tag { font-size: 10px; font-weight: 700; color: var(--ink-faint); margin-right: 6px; }
+  tr.hi .pv2-fy-tag { color: rgba(36, 68, 192, 0.55); }
+
+  .pv2-ai-summary {
+    margin-top: 14px; background: var(--accent-soft); border: 1px solid rgba(47, 84, 235, 0.22);
+    border-left: 5px solid var(--accent); border-radius: 12px; padding: 16px 22px;
+  }
+  .pv2-ai-summary-label {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--accent-strong); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .pv2-ai-summary-text { font-size: 15px; color: var(--ink-muted); line-height: 1.55; }
+  .pv2-ai-summary-text b { color: var(--accent-strong); }
+
+  .pv2-footnote {
+    margin-top: 14px; padding-top: 9px; font-size: 10.5px; line-height: 1.5; color: var(--ink-faint);
+    border-top: 1px solid var(--hairline);
+  }
+  .pv2-footnote b { color: var(--ink-muted); font-weight: 700; }
+
+  .pv2-hero { text-align: center; padding: 18px 0 20px; }
+  .pv2-hero-eyebrow {
+    font-size: 12px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 10px;
+  }
+  .pv2-hero-num { font-size: 60px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; line-height: 1; }
+  .pv2-hero-cap { font-size: 16px; color: var(--ink-muted); margin-top: 8px; font-weight: 600; }
+  .pv2-hero-secondary { font-size: 14px; color: var(--ink-muted); margin-top: 12px; }
+  .pv2-hero-secondary b { color: var(--ink); font-weight: 800; }
+
+  .pv2-how-strip {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 10px; text-align: center; font-size: 13px; color: var(--ink-muted);
+    padding: 14px 20px; background: var(--paper-tint); border-radius: 10px; margin: 0 auto 16px;
+  }
+  .pv2-how-strip .pv2-sep { color: var(--ink-faint); }
+  .pv2-how-strip .pv2-assumed { color: var(--warn); font-weight: 700; }
+  .pv2-how-strip b { color: var(--ink); }
 </style>
 </head>
 <body>
@@ -661,6 +738,8 @@
 
           <div class="pres-col">
             <ol class="pres-agenda">
+              <li>Eveready, in numbers</li>
+              <li>What better forecasting is worth to Eveready</li>
               <li>Forecasting &mdash; the business case</li>
               <li>Forecasting &mdash; the technical model</li>
               <li>Reorder planning</li>
@@ -675,6 +754,77 @@
         </div>
 
         <div class="pres-slide" data-pres-slide="3">
+          <h1 class="pres-slide-title">Eveready, in numbers</h1>
+          <div class="pv2-section-label">FY2025&ndash;26 Annual Report</div>
+
+          <div class="pv2-stat-row">
+            <div class="pv2-stat-tile">
+              <div class="pv2-stat-label">Revenue (FY26)</div>
+              <div class="pv2-stat-value">&#8377;1,455 Cr</div>
+              <div class="pv2-stat-delta">&#9650; 8.2% vs FY25</div>
+            </div>
+            <div class="pv2-stat-tile">
+              <div class="pv2-stat-label">Inventory on the books</div>
+              <div class="pv2-stat-value">&#8377;301.8 Cr</div>
+              <div class="pv2-stat-sub">134 days of cover</div>
+            </div>
+            <div class="pv2-stat-tile">
+              <div class="pv2-stat-label">Finished goods &amp; traded stock (FY26)</div>
+              <div class="pv2-stat-value">&#8377;122.5 Cr</div>
+              <div class="pv2-stat-sub">&#8377;81.6 Cr + &#8377;40.9 Cr</div>
+            </div>
+          </div>
+
+          <div class="pv2-peer-card">
+            <div class="pv2-peer-title">Inventory days &mdash; <span>vs. listed peers</span></div>
+            <table class="pv2-peer-table">
+              <thead>
+                <tr><th>Company</th><th class="num">Inventory days, FY23&ndash;FY26</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Crompton Greaves Consumer</td><td class="num"><span class="pv2-trend">58 &rarr; 61 &rarr; 61 &rarr; <span class="pv2-now">49</span></span></td></tr>
+                <tr><td>Bajaj Electricals</td><td class="num"><span class="pv2-trend">106 &rarr; 85 &rarr; 79 &rarr; <span class="pv2-now">64</span></span></td></tr>
+                <tr><td>Indo National (NIPPO)</td><td class="num"><span class="pv2-trend">88 &rarr; 95 &rarr; 147 &rarr; <span class="pv2-now">80</span></span></td></tr>
+                <tr class="hi"><td>Eveready</td><td class="num"><span class="pv2-fy-tag">FY24</span><span class="pv2-trend">122 &rarr; 143 &rarr; <span class="pv2-now">134</span></span></td></tr>
+              </tbody>
+            </table>
+            <div class="pv2-ai-summary">
+              <div class="pv2-ai-summary-label">&#10022; AI Summary</div>
+              <div class="pv2-ai-summary-text">Eveready carries <b>54&ndash;85 more days of inventory than every listed peer in the set</b>. Crompton and Bajaj both cut inventory days meaningfully over this window; Eveready has not.</div>
+            </div>
+          </div>
+
+          <div class="pv2-footnote">
+            <b>Sources.</b> cdn.eveready.in/uat/documents/EIIL_AR%2025-26.pdf (Annual Report FY2025&ndash;26, Note 10) &nbsp;&middot;&nbsp; screener.in/company/EVEREADY (peer inventory days, FY26, same cost-of-goods basis)
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="4">
+          <h1 class="pres-slide-title">What better forecasting is worth to Eveready</h1>
+          <div class="pv2-section-label">Built from your own numbers &mdash; with exactly one assumption</div>
+
+          <div class="pv2-hero">
+            <div class="pv2-hero-eyebrow">What this unlocks</div>
+            <div class="pv2-hero-num">&#8377;27&ndash;36 Cr</div>
+            <div class="pv2-hero-cap">of inventory taken off the books</div>
+            <div class="pv2-hero-secondary">+ <b>&#8377;5&ndash;9 Cr</b> a year stopped being paid in interest, at 20&ndash;25%/yr carrying cost</div>
+          </div>
+
+          <div class="pv2-how-strip">
+            <span><b>&#8377;122.5 Cr</b> addressable (54 days &mdash; finished goods + traded stock)</span>
+            <span class="pv2-sep">&rarr;</span>
+            <span class="pv2-assumed">cut 12&ndash;16 days, the one assumption</span>
+            <span class="pv2-sep">&rarr;</span>
+            <span><b>&#8377;27&ndash;36 Cr</b> released</span>
+          </div>
+
+          <div class="pv2-ai-summary">
+            <div class="pv2-ai-summary-label">&#10022; Why this is conservative, not optimistic</div>
+            <div class="pv2-ai-summary-text">Two of Eveready's own listed peers already did more: <b>Bajaj Electricals cut 42 days in three years</b>, <b>Indo National (NIPPO) cut 67 days in one</b>. We're claiming roughly a fifth to a third of what's already been proven achievable.</div>
+          </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="5">
           <h1 class="pres-slide-title">Forecasting &mdash; the business case</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Built from your SAP data</span>
@@ -710,7 +860,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="4">
+        <div class="pres-slide" data-pres-slide="6">
           <h1 class="pres-slide-title">Forecasting &mdash; the technical model</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Segment before picking a model</span>
@@ -753,7 +903,7 @@
           <div class="pres-disclaimer"><span class="pres-note-tag">Note</span><span>These are directional. Once run on your real SAP data, the model per segment may change based on how each actually performs.</span></div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="5">
+        <div class="pres-slide" data-pres-slide="7">
           <h1 class="pres-slide-title">Reorder planning</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Beyond the forecast</span>
@@ -789,7 +939,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="6">
+        <div class="pres-slide" data-pres-slide="8">
           <h1 class="pres-slide-title">Stock imbalance &amp; transfer planning</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Depot-to-depot, same region</span>
@@ -824,7 +974,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="7">
+        <div class="pres-slide" data-pres-slide="9">
           <h1 class="pres-slide-title">Integration &amp; data requirements</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">All from SAP</span>
@@ -862,7 +1012,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="8">
+        <div class="pres-slide" data-pres-slide="10">
           <h1 class="pres-slide-title">Security &amp; deployment</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Enterprise infrastructure</span>
@@ -910,7 +1060,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="9">
+        <div class="pres-slide" data-pres-slide="11">
           <h1 class="pres-slide-title">Commercials</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Pilot scope</span>
@@ -964,6 +1114,8 @@
             <button type="button" class="pres-dot" data-pres-goto="7" aria-label="Slide 7"></button>
             <button type="button" class="pres-dot" data-pres-goto="8" aria-label="Slide 8"></button>
             <button type="button" class="pres-dot" data-pres-goto="9" aria-label="Slide 9"></button>
+            <button type="button" class="pres-dot" data-pres-goto="10" aria-label="Slide 10"></button>
+            <button type="button" class="pres-dot" data-pres-goto="11" aria-label="Slide 11"></button>
           </div>
           <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
         </div>
