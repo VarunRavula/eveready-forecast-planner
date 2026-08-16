@@ -557,6 +557,11 @@
   .pres-cover-title .pres-cover-x { color: var(--accent); }
   .pres-cover-points { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--ink-muted); }
   .pres-cover-sep { color: var(--ink-faint); }
+  .pres-cover-link {
+    display: inline-block; margin-top: 24px; padding: 9px 18px; border-radius: 999px;
+    background: var(--accent-soft); border: 1px solid rgba(47, 84, 235, 0.22);
+    font-size: 12.5px; font-weight: 700; color: var(--accent-strong);
+  }
   .pres-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @container (max-width: 640px) { .pres-cols { grid-template-columns: 1fr; } }
   @media (max-width: 720px) { .pres-cols { grid-template-columns: 1fr; } }
@@ -895,6 +900,7 @@
               <span class="pres-cover-sep">&middot;</span>
               <span>Reduce Excess Inventory</span>
             </div>
+            <div class="pres-cover-link">Live prototype: easyreplenish.github.io/eveready-forecast-planner</div>
           </div>
         </div>
 
@@ -1489,6 +1495,8 @@
           </table>
 
           <div class="pres-disclaimer"><span class="pres-note-tag">Total</span><span>&#8377;6,40,000 for Sales &amp; Demand Forecasting + Stock Balancing &amp; Transfer. Production &amp; Procurement will be scoped and priced once workflows, users and requirements are confirmed.</span></div>
+
+          <div class="pv2-footnote"><b>Try it yourself.</b> Everything in this deck is running on the live prototype at easyreplenish.github.io/eveready-forecast-planner &mdash; no login required.</div>
         </div>
 
         <div class="pres-nav">
