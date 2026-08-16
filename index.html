@@ -871,6 +871,12 @@
     border-top: 1px solid var(--hairline);
   }
   .footnote b { color: var(--ink-muted); font-weight: 700; }
+
+  /* ---- pv2f: "What zonal inventory rebalance looks like" additions ---- */
+  .pv2f-proof-sub { font-size: 10.5px; color: var(--ink-faint); margin: -6px 0 10px; }
+  .pv2f-gai-text { font-size: 12.5px; color: var(--ink); line-height: 1.55; }
+  .pv2f-gai-text b { color: var(--accent-strong); }
+  .pv2f-pt-table td .pv2f-sku { display: block; font-size: 9.5px; color: var(--ink-faint); font-weight: 600; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -907,6 +913,7 @@
               <li>What forecasting looks like, on your own data</li>
               <li>Reorder planning</li>
               <li>Stock imbalance &amp; transfer planning</li>
+              <li>What zonal inventory rebalance looks like, on your own data</li>
               <li>Integration &amp; data requirements</li>
               <li>Security &amp; deployment</li>
               <li>Commercials</li>
@@ -1293,6 +1300,70 @@
         </div>
 
         <div class="pres-slide" data-pres-slide="11">
+          <h1 class="pres-slide-title">What zonal inventory rebalance looks like, on your own data</h1>
+            <div class="pv2-section-label">Live from the prototype &mdash; not a mockup</div>
+          
+            <div class="pv2f-proof-row">
+              <div class="pv2f-proof-card">
+                <div class="pv2f-browser-bar">
+                  <div class="pv2f-traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+                  <div class="pv2f-addr-bar">varunravula.github.io/eveready-forecast-planner</div>
+                </div>
+                <div class="pv2f-app-nav">
+                  <span class="pv2f-an-logo">EasyReplenish &times; Eveready</span>
+                  <div class="pv2f-an-tabs"><span class="pv2f-an-tab on">Stock Imbalance Transfer</span></div>
+                </div>
+                <div class="pv2f-screen-body">
+                  <div class="pv2f-proof-title">The imbalance, in one summary</div>
+                  <div class="pv2f-proof-sub">Patna &rarr; Dhulagarh, East region</div>
+                  <div class="pv2f-gai">
+                    <div class="pv2f-gai-head">
+                      <span class="pv2f-gai-spark">&#10022;</span>
+                      <span class="pv2f-gai-label">AI Summary</span>
+                    </div>
+                    <div class="pv2f-gai-text"><b>Patna</b> has too much stock. <b>Dhulagarh</b>, in the same East region, is running low. Moving <b>3 SKUs</b> &mdash; about <b>17,600 units</b> &mdash; fixes the shortage. No new orders needed.</div>
+                  </div>
+                </div>
+              </div>
+          
+              <div class="pv2f-proof-card">
+                <div class="pv2f-browser-bar">
+                  <div class="pv2f-traffic"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+                  <div class="pv2f-addr-bar">varunravula.github.io/eveready-forecast-planner</div>
+                </div>
+                <div class="pv2f-app-nav">
+                  <span class="pv2f-an-logo">EasyReplenish &times; Eveready</span>
+                  <div class="pv2f-an-tabs"><span class="pv2f-an-tab on">Stock Imbalance Transfer</span></div>
+                </div>
+                <div class="pv2f-screen-body">
+                  <div class="pv2f-proof-title">All 3 flagged SKUs</div>
+                  <table class="pv2f-pt-table">
+                    <thead><tr><th>Product</th><th class="num">Move</th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td>AA Alkaline (4-pack)<span class="pv2f-sku">BAT-01</span></td>
+                        <td class="num">17,300 units</td>
+                      </tr>
+                      <tr>
+                        <td>Rechargeable AA (2-pack)<span class="pv2f-sku">BAT-08</span></td>
+                        <td class="num">50 units</td>
+                      </tr>
+                      <tr>
+                        <td>LED Batten 36W<span class="pv2f-sku">LGT-04</span></td>
+                        <td class="num">250 units</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          
+            <div class="pv2-footnote">
+              <b>Source.</b> Live from the working prototype (varunravula.github.io/eveready-forecast-planner) &mdash; Stock Imbalance Transfer tab. Sample/illustrative data, not Eveready's real SAP figures &mdash; the tool runs on the same structure once connected to your data.
+            </div>
+        </div>
+
+        <div class="pres-slide" data-pres-slide="12">
           <h1 class="pres-slide-title">Integration &amp; data requirements</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">All from SAP</span>
@@ -1330,7 +1401,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="12">
+        <div class="pres-slide" data-pres-slide="13">
           <h1 class="pres-slide-title">Security &amp; deployment</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Enterprise infrastructure</span>
@@ -1378,7 +1449,7 @@
           </div>
         </div>
 
-        <div class="pres-slide" data-pres-slide="13">
+        <div class="pres-slide" data-pres-slide="14">
           <h1 class="pres-slide-title">Commercials</h1>
           <div class="pres-data-strip">
             <span class="pres-lbl">Pilot scope</span>
@@ -1436,6 +1507,7 @@
             <button type="button" class="pres-dot" data-pres-goto="11" aria-label="Slide 11"></button>
             <button type="button" class="pres-dot" data-pres-goto="12" aria-label="Slide 12"></button>
             <button type="button" class="pres-dot" data-pres-goto="13" aria-label="Slide 13"></button>
+            <button type="button" class="pres-dot" data-pres-goto="14" aria-label="Slide 14"></button>
           </div>
           <button type="button" class="btn primary" id="presNext">Next &rarr;</button>
         </div>
